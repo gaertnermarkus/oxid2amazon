@@ -129,3 +129,47 @@ CREATE TABLE IF NOT EXISTS `az_amz_orderitems_tmp` (
 
 ALTER TABLE `oxorder` ADD `AMZORDERID` VARCHAR( 50 ) NOT NULL ,
 ADD INDEX ( `AMZORDERID` ) ;
+
+
+CREATE TABLE IF NOT EXISTS `az_amz_categories2amzoncategories` (
+  `OXID` varchar(32) COLLATE latin1_general_ci NOT NULL,
+  `OXOBJECTID` varchar(32) COLLATE latin1_general_ci NOT NULL,
+  `OXTYPE` varchar(32) NOT NULL,
+  `OXSORT` int(6) NOT NULL,
+  `D3AMAZONCATID` varchar(32) COLLATE latin1_general_ci NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+
+
+ALTER TABLE `az_amz_orders_tmp` ADD `AZPROCESSEDFILE` TINYINT( 1 ) NOT NULL DEFAULT '0';
+
+
+ALTER TABLE `oxarticles` 
+ADD  `SELFIMPORT` tinyint(1) NOT NULL DEFAULT '0',
+ADD  `MATERIAL` varchar(255) COLLATE latin1_general_ci NOT NULL,
+ADD  `FARBE` varchar(255) COLLATE latin1_general_ci NOT NULL,
+ADD  `PORTALTEXT` text COLLATE latin1_general_ci NOT NULL,
+
+ADD  `d3amazonbulletpoint1` varchar(255) COLLATE latin1_general_ci NOT NULL COMMENT 'Amazon',
+ADD  `d3amazonbulletpoint2` varchar(255) COLLATE latin1_general_ci NOT NULL COMMENT 'Amazon',
+ADD  `d3amazonbulletpoint3` varchar(255) COLLATE latin1_general_ci NOT NULL COMMENT 'Amazon',
+ADD  `d3amazonbulletpoint4` varchar(255) COLLATE latin1_general_ci NOT NULL COMMENT 'Amazon',
+ADD  `d3amazonbulletpoint5` varchar(255) COLLATE latin1_general_ci NOT NULL COMMENT 'Amazon';
+
+
+--
+-- Table structure for table `az_amz_categories2amzoncategories`
+--
+
+CREATE TABLE IF NOT EXISTS `az_amz_categories2amzoncategories` (
+  `OXID` varchar(32) COLLATE latin1_general_ci NOT NULL,
+  `OXOBJECTID` varchar(32) COLLATE latin1_general_ci NOT NULL,
+  `OXTYPE` varchar(32) COLLATE latin1_general_ci NOT NULL,
+  `OXSORT` int(6) NOT NULL,
+  `D3AMAZONCATID` varchar(32) COLLATE latin1_general_ci NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+
+	
+--
+INSERT INTO `oxcontents` (`OXID`, `OXLOADID`, `OXSHOPID`, `OXSNIPPET`, `OXTYPE`, `OXACTIVE`, `OXACTIVE_1`, `OXPOSITION`, `OXTITLE`, `OXCONTENT`, `OXTITLE_1`, `OXCONTENT_1`, `OXACTIVE_2`, `OXTITLE_2`, `OXCONTENT_2`, `OXACTIVE_3`, `OXTITLE_3`, `OXCONTENT_3`, `OXCATID`, `OXFOLDER`, `OXTERMVERSION`) VALUES
+('92e863ae9bd08169f3b091abdd9decdd', 'oxadminorderemail_amazon', 'oxbaseshop', 1, 0, 1, 1, '', 'Ihre Bestellung Admin (Amazon)', 'Folgende Artikel wurden soeben über Amazon bei [{ $shop->oxshops__oxname->value }] bestellt:<br>\r\n<br>', '', '', 1, '', '', 1, '', '', '8a142c3e4143562a5.46426637', 'CMSFOLDER_EMAILS', ''),
+('92e3d4f42607c6a5b2f0ffaadb8c027f', 'oxadminorderplainemail_amazon', 'oxbaseshop', 1, 0, 1, 1, '', 'Ihre Bestellung Admin Plain (Amazon)', 'Folgende Artikel wurden soeben über Amazon bei SHOP bestellt:', '', '', 1, '', '', 1, '', '', '8a142c3e4143562a5.46426637', 'CMSFOLDER_EMAILS', '');

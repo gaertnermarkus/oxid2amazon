@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
+    <Header>
+        <DocumentVersion>1.01</DocumentVersion>
+        <MerchantIdentifier>M_Gartenmoebel_1007940</MerchantIdentifier>
+    </Header>
+    <MessageType>OrderReport</MessageType>
+    <Message>
+        <MessageID>1</MessageID>
+        <OrderReport>
+            <AmazonOrderID>302-7298914-2579520</AmazonOrderID>
+            <AmazonSessionID>302-6986549-6337923</AmazonSessionID>
+            <OrderDate>2012-04-27T07:30:45+00:00</OrderDate>
+            <OrderPostedDate>2012-04-27T07:30:45+00:00</OrderPostedDate>
+            <BillingData>
+                <BuyerEmailAddress>d3test1@shopmodule.com</BuyerEmailAddress>
+                <BuyerName>EVA-KRISTIN TREPTOW</BuyerName>
+                <BuyerPhoneNumber>017634622411</BuyerPhoneNumber>
+                <Address>
+                    <Name>EVA-KRISTIN TREPTOW</Name>
+                    <AddressFieldOne>Achterhoeker Schulweg 41a</AddressFieldOne>
+                    <City>Kevelaer</City>
+                    <StateOrRegion>Nordrhein-Westfalen</StateOrRegion>
+                    <PostalCode>47626</PostalCode>
+                    <CountryCode>DE</CountryCode>
+                    <PhoneNumber>01629441134</PhoneNumber>
+                </Address>
+            </BillingData>
+            <FulfillmentData>
+                <FulfillmentMethod>Ship</FulfillmentMethod>
+                <FulfillmentServiceLevel>Standard</FulfillmentServiceLevel>
+                <Address>
+                    <Name>EVA-KRISTIN TREPTOW</Name>
+                    <AddressFieldOne>Stollberger Straße 23</AddressFieldOne>
+                    <City>Thalheim</City>
+                    <StateOrRegion>Sachsen</StateOrRegion>
+                    <PostalCode>47626</PostalCode>
+                    <CountryCode>DE</CountryCode>
+                    <PhoneNumber>01629441134</PhoneNumber>
+                </Address>
+            </FulfillmentData>
+            <Item>
+                <AmazonOrderItemCode>46334553988203</AmazonOrderItemCode>
+                <SKU>1402</SKU>
+                <Title>Kissen wasserabweisend, creme-weiß inkl. Ersatzbezug in weinrot, 1 Stk. 45x45cm</Title>
+                <Quantity>1</Quantity>
+                <ProductTaxCode>PTC_PRODUCT_TAXABLE_A</ProductTaxCode>
+                <ItemPrice>
+                    <Component>
+                        <Type>Principal</Type>
+                        <Amount currency="EUR">29.00</Amount>
+                    </Component>
+                    <Component>
+                        <Type>Shipping</Type>
+                        <Amount currency="EUR">0.00</Amount>
+                    </Component>
+                    <Component>
+                        <Type>Tax</Type>
+                        <Amount currency="EUR">0.00</Amount>
+                    </Component>
+                    <Component>
+                        <Type>ShippingTax</Type>
+                        <Amount currency="EUR">0.00</Amount>
+                    </Component>
+                </ItemPrice>
+                <ItemFees>
+                    <Fee>
+                        <Type>Commission</Type>
+                        <Amount currency="EUR">0.00</Amount>
+                    </Fee>
+                </ItemFees>
+            </Item>
+        </OrderReport>
+    </Message>
+
+</AmazonEnvelope>
