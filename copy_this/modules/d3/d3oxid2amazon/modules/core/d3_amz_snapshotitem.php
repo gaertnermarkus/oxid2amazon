@@ -2,9 +2,8 @@
 
 /**
  * Weitere Felder fuer den kompletten Artikelupload - zum Test was geaendert wurde
- * 
  * az_amz_snapshotitem =>d3oxid2amazon/core/d3_amz_snapshotitem
- *  
+
  */
 class d3_amz_snapshotitem extends d3_amz_snapshotitem_parent
 {
@@ -15,31 +14,35 @@ class d3_amz_snapshotitem extends d3_amz_snapshotitem_parent
         'd3amazonbulletpoint3',
         'd3amazonbulletpoint4',
         'd3amazonbulletpoint5',
-        'AHTFARBE',
-        'AHTMATERIAL',
-        'AHTSELFIMPORT',
+        'FARBE',
+        'MATERIAL',
+        'SELFIMPORT',
         'OXSEARCHKEYS',
-        'AHTPORTALTEXT',
+        'PORTALTEXT',
     );
+
     protected $_aD3HashInventoryFields = array(
         'oxartnum',
     );
 
+    /**
+     * @return array
+     */
     public function getProductHashFields()
     {
         $aFieldsModule = parent::getProductHashFields();
-        $aFieldsAH = $this->_aD3HashProductFields;
+        $aFieldsAH     = $this->_aD3HashProductFields;
 
         return array_merge($aFieldsModule, $aFieldsAH);
     }
 
     /**
-     * @return array 
+     * @return array
      */
     public function getInventoryHashFields()
     {
         $aFieldsModule = parent::getInventoryHashFields();
-        $aFieldsAH = $this->_aD3HashInventoryFields;
+        $aFieldsAH     = $this->_aD3HashInventoryFields;
         return array_merge($aFieldsModule, $aFieldsAH);
     }
 

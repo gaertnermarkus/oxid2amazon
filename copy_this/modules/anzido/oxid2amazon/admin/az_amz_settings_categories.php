@@ -31,12 +31,15 @@ class az_amz_settings_categories extends oxAdminDetails
     	
     	return $sRet;
     }
-     
-    
+
+    /**
+     * @return array
+     */
     protected function _buildCategoryTree()
-    {    	     		
-		$oDB =getDb();
-		$sCatView = getViewName('oxcategories');
+    {
+        $aCatTree = array();
+        $oDB = oxDb::getDb();
+        $sCatView = getViewName('oxcategories');
 		
 		$sQ = "SELECT SiteTree.oxid AS oxid, GROUP_CONCAT(PathTree.oxtitle ORDER BY PathTree.oxleft SEPARATOR ' > ') as Path
 				  FROM $sCatView AS SiteTree, $sCatView AS PathTree
@@ -49,7 +52,7 @@ class az_amz_settings_categories extends oxAdminDetails
 		
 		$rs = $oDB->execute($sQ);
 		
-		if($rs != false && $rs->recordCount() > 0) 
+		if($rs != FALSE && $rs->recordCount() > 0)
     	{
             while (!$rs->EOF) 
             {            	

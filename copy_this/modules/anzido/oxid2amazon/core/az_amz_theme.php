@@ -113,6 +113,7 @@ abstract class az_amz_theme
     protected function _getVariationXml($oProduct)
     {
 
+        /** @var az_amz_config $oAZConfig */
         $oAZConfig = oxNew('az_amz_config', oxConfig::getInstance()->getShopId());
         $sXML = '';
         if ($oAZConfig->blAmazonExportVariants == '1' && $this->_sMappedVariation != '')
@@ -145,6 +146,7 @@ abstract class az_amz_theme
     protected function _getXmlBody($oProduct)
     {
         $sXML = '';
+        /** @var az_amz_config $oAZConfig */
         $oAZConfig = oxNew('az_amz_config', oxConfig::getInstance()->getShopId());
         // category
         if ($this->_sMappedCategory && is_array($this->_aCategories) && in_array($this->_sMappedCategory, $this->_aCategories))
@@ -243,6 +245,7 @@ abstract class az_amz_theme
      */
     static function getCategoryTheme($sCatId)
     {
+        /** @var az_amz_config $oAzConfig */
         $oAzConfig = oxNew('az_amz_config', oxConfig::getInstance()->getShopId());
 
         $aThemeMappings = unserialize($oAzConfig->aThemeMappings);
@@ -272,6 +275,7 @@ abstract class az_amz_theme
      */
     static function getOxidCategoryMapping($sCatId)
     {
+        /** @var az_amz_config $oAzConfig */
         $oAzConfig = oxNew('az_amz_config', oxConfig::getInstance()->getShopId());
 
         $aThemeMappings = unserialize($oAzConfig->aThemeMappings);
@@ -294,6 +298,7 @@ abstract class az_amz_theme
      */
     static function setCategoryTheme($sCatId, $aThemeData)
     {
+        /** @var az_amz_config $oAzConfig */
         $oAzConfig = oxNew('az_amz_config', oxConfig::getInstance()->getShopId());
 
         $aThemeMappings = unserialize($oAzConfig->aThemeMappings);

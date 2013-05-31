@@ -7,6 +7,9 @@
 class d3_az_amz_snapshot extends d3_az_amz_snapshot_parent
 {
 
+    /**
+     * @return sql string
+     */
     protected function _getFilterWhere()
     {
         //TODO: on EE/PE version there could be a problems with table names, couse filter fields comes with oxarticles prefix

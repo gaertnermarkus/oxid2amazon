@@ -53,11 +53,15 @@ class az_amz_settings_main extends oxAdminDetails
     	$oAzConfig->assignArray($editVal);
     	$oAzConfig->saveToDatabase();
     }
-    
+
+    /**
+     * @return array
+     */
     protected function _getPayments()
     {
+        $aPayments = array();
     	$sSelect = "select oxid, oxdesc from oxpayments";
-    	$aAllPayments = oxDb::getDb(true)->getAll($sSelect);
+    	$aAllPayments = oxDb::getDb(TRUE)->getAll($sSelect);
     	//dumpVar($aAllPayments);
         $aPayments = array();
     	
@@ -70,11 +74,15 @@ class az_amz_settings_main extends oxAdminDetails
     	
     	return $aPayments;
     }
-    
+
+    /**
+     * @return array
+     */
     protected function _getShippings()
     {
+        $aShipsets = array();
     	$sSelect = "select oxid, oxtitle from oxdeliveryset";
-    	$aAllShipsets = oxDb::getDb(true)->getAll($sSelect);
+    	$aAllShipsets = oxDb::getDb(TRUE)->getAll($sSelect);
         $aShipsets = array();
     	
     	foreach ($aAllShipsets as $aValues) {

@@ -16,6 +16,7 @@ class d3_oxarticle_amazoncategoies extends d3_oxarticle_amazoncategoies_parent
     public function d3searchAmazonCategories4Article()
     {
         $aAmazonCats = array();
+        /** @var az_amz_categories $oaz_amz_categories */
         $oaz_amz_categories = oxnew('az_amz_categories');
         $aAmazonCats = $oaz_amz_categories->searchAmazonCategories4Article($this);
         return $aAmazonCats;
@@ -100,18 +101,21 @@ class d3_oxarticle_amazoncategoies extends d3_oxarticle_amazoncategoies_parent
         $sPic = $this->getZoomPictureUrl($iIndex);
 
         $iPos = strpos(strtolower($sPic), "nopic.jpg");
-        if ($iPos !== false)
+        if ($iPos !== FALSE)
             $sPic = "";
 
         return $sPic;
     }
 
+    /**
+     * @return string
+     */
     public function d3AmazonShrink()
     {
-        $sText = $this->oxarticles__ahtportaltext->rawValue;
+        $sText = $this->oxarticles__portaltext->rawValue;
         
         #$sText = $this->shrink($sText, 2000, false);
-        $sText = $this->shrink($sText, 1970, false);
+        $sText = $this->shrink($sText, 1970, FALSE);
         #$sText = str_replace("\r\n", "<br>", $sText);
         #$sText = str_replace("\n", "<br>", $sText);
         return $sText;
@@ -124,7 +128,7 @@ class d3_oxarticle_amazoncategoies extends d3_oxarticle_amazoncategoies_parent
      * @param type $blRemoveNewline
      * @return string 
      */
-    public function shrink($sInput, $iMaxSize, $blRemoveNewline = true)
+    public function shrink($sInput, $iMaxSize, $blRemoveNewline = TRUE)
     {
         if ($blRemoveNewline)
         {

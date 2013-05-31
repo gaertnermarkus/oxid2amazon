@@ -28,7 +28,8 @@ class az_amz_destinations_main extends oxAdminDetails
         }
 
         if ( $soxId != "-1" && isset( $soxId)) {
-            // loading destination 
+            // loading destination
+            /** @var az_amz_destination $oAZDestination */
             $oAZDestination = oxNew( "az_amz_destination" );
             $oAZDestination->load( $soxId);
             $this->_aViewData["edit"] =  $oAZDestination;
@@ -89,7 +90,8 @@ class az_amz_destinations_main extends oxAdminDetails
 
         $soxId      = oxConfig::getParameter( "oxid");
         $aParams    = oxConfig::getParameter( "editval");
-       
+
+        /** @var az_amz_destination $oAZDestination */
         $oAZDestination = oxNew( "az_amz_destination" );
         if ( $soxId != "-1")
             $oAZDestination->load( $soxId);
@@ -101,7 +103,8 @@ class az_amz_destinations_main extends oxAdminDetails
         
         $oAZDestination->assign( $aParams);
         $oAZDestination->save();
-        
+
+        /** @var az_amz_history $oHistory */
         $oHistory = oxNew('az_amz_history');			
         $sHistoryMsg = 'Changes in "Destination" tab';
 		$oHistory->addRecord($oAZDestination, 'save_main', $sHistoryMsg);

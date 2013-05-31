@@ -85,24 +85,6 @@ class d3_amz_cron extends d3_amz_cron_parent
         }
     }
 
-    public function d3_importOrders___NOT_USE()
-    {
-        $this->blD3 = true;
-        $this->downloadOrderReports();
-        $this->showStatus();
-        echo "\n";
-
-        $oAmzOrders = oxNew("az_amz_orders");
-        $oAmzOrders->setSourceDir(getShopBasePath() . $this->_sReportsDir);
-        $oAmzOrders->readFiles();
-
-        echo "<br>Import Bestellungen";
-        $oAmzOrders->importOrders();
-
-        $oAmzOrders->deleteFilesFromAMTU($this->_destinationId);
-        echo "\n";
-    }
-
     public function render()
     {
         if ($this->blD3)

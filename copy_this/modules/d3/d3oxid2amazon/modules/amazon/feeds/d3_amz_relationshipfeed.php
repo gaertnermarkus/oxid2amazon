@@ -5,6 +5,11 @@
      */
 class d3_amz_relationshipfeed extends d3_amz_relationshipfeed_parent
 {
+    /**
+     * @param $id
+     *
+     * @return string
+     */
 
     public function getUpdateXml($id)
     {
@@ -14,7 +19,7 @@ class d3_amz_relationshipfeed extends d3_amz_relationshipfeed_parent
         $aVariants 	= $this->_getVariants($id);
 
         $sSkuProp = $this->getSkuProperty();
-        $sSkuValue = $this->cutEanNumber($product->$sSkuProp->value);
+        $sSkuValue = $this->prepareEanNumber($product->$sSkuProp->value);
 
 
         if ($aVariants && sizeof($aVariants) > 0)
@@ -26,7 +31,7 @@ class d3_amz_relationshipfeed extends d3_amz_relationshipfeed_parent
 
             foreach($aVariants as $sVariantSKU)
             {
-                $sVariantSKU = $this->cutEanNumber($sVariantSKU);
+                $sVariantSKU = $this->prepareEanNumber($sVariantSKU);
                 $sXml .= '<Relation>'.$this->nl;
                 $sXml .= '<SKU>'.$sVariantSKU.'</SKU>'.$this->nl;
                 $sXml .= '<Type>Variation</Type>'.$this->nl;
@@ -38,25 +43,4 @@ class d3_amz_relationshipfeed extends d3_amz_relationshipfeed_parent
 
         return $sXml;
     }
-
-    /**
-     * remove 1 from start and end of Sting
-     *
-     * @param string $sArtikelNr
-     * @return string $sArtikelNrCut
-     */
-    public function cutEanNumber($sArtikelNr)
-    {
-        $iPos1 = 0;
-        $iPos2 = strlen($sArtikelNr) - 1;
-        $sArtikelNrCut = '';
-
-        if ((substr($sArtikelNr, $iPos1, 1) == '1' && substr($sArtikelNr, $iPos2, 1) == '1'))
-            $sArtikelNrCut = substr($sArtikelNr, $iPos1 + 1, $iPos2 - 1);
-        else
-            $sArtikelNrCut = $sArtikelNr;
-
-        return $sArtikelNrCut;
-    }
-
 }

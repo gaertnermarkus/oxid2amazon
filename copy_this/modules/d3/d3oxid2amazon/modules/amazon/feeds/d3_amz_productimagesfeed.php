@@ -8,6 +8,11 @@
 class d3_amz_productimagesfeed extends d3_amz_productimagesfeed_parent
 {
 
+    /**
+     * @param $id
+     *
+     * @return string
+     */
     public function getUpdateXml($id)
     {
         $oAmzConfig = $this->_getAmzConfig();
@@ -43,7 +48,7 @@ class d3_amz_productimagesfeed extends d3_amz_productimagesfeed_parent
                         $sImageLocation = str_replace('https', 'http', $sImageLocation);
 
                         $sSkuProp = $this->getSkuProperty();
-                        $sSkuValue = $this->cutEanNumber($product->$sSkuProp->value);
+                        $sSkuValue = $this->prepareEanNumber($product->$sSkuProp->value);
 
 
                         $sXml .= '<Message>' . $this->nl;
@@ -61,26 +66,4 @@ class d3_amz_productimagesfeed extends d3_amz_productimagesfeed_parent
         }
         return $sXml;
     }
-
-    /**
-     * remove 1 from start and end of Sting
-     * 
-     * 
-     * @param string $sArtikelNr
-     * @return string $sArtikelNrCut
-     */
-    public function cutEanNumber($sArtikelNr)
-    {
-        $iPos1 = 0;
-        $iPos2 = strlen($sArtikelNr) - 1;
-        $sArtikelNrCut = '';
-
-        if ((substr($sArtikelNr, $iPos1, 1) == '1' && substr($sArtikelNr, $iPos2, 1) == '1'))
-            $sArtikelNrCut = substr($sArtikelNr, $iPos1 + 1, $iPos2 - 1);
-        else
-            $sArtikelNrCut = $sArtikelNr;
-
-        return $sArtikelNrCut;
-    }
-
 }

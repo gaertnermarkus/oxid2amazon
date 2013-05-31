@@ -4,6 +4,7 @@ class az_amz_cron extends oxUBase
 {
 
     const STATUS_OK = 1;
+
     const STATUS_ERROR = 0;
 
     protected $_sReportsDir = "modules/anzido/oxid2amazon/amazon/reports";
@@ -12,27 +13,28 @@ class az_amz_cron extends oxUBase
 
     /**
      * Destination Id
-     * 
+     *
      * @var string
      */
-    private $_destinationId = null;
+    private $_destinationId = NULL;
 
     /**
      * Cronjob Id
-     * 
+     *
      * @var string
      */
-    private $_cronId = null;
+    private $_cronId = NULL;
 
     /**
      * shows if this feed is run in dry run (no changes in database will be done)
-     * 
+     *
      * @var bool
      */
-    private $_dryRun = false;
+    private $_dryRun = FALSE;
 
     /**
      * Timeout of action in minutes
+     *
      * @var int
      */
     private $_sTimeOutPeriod = 60;
@@ -41,23 +43,26 @@ class az_amz_cron extends oxUBase
     {
         $sDestinationId = oxConfig::getParameter('destinationid');
 
-        if (!$sDestinationId)
+        if(!$sDestinationId) {
             die('Destination id must be provided!');
+        }
 
         $this->_destinationId = $sDestinationId;
 
         $dryRun = oxConfig::getParameter('dryrun');
-        if ($dryRun == 'true')
-            $this->_dryRun = true;
+        if($dryRun == 'true') {
+            $this->_dryRun = TRUE;
+        }
 
         // checks if last cron call is not yet finished
-        if ($this->_checkLastCron())
+        if($this->_checkLastCron()) {
             die('Cronjob with specified action and destinationId is still running!');
+        }
     }
 
     /**
-     * 
      * @param string $type Az_Amz_Feed::TYPE_* type of feed
+     *
      * @return null
      */
     protected function _runExport($type)
@@ -67,19 +72,16 @@ class az_amz_cron extends oxUBase
         $oFeed = Az_Amz_Feed::create($type, $this->_destinationId, $this->_dryRun);
 
         $iProductsCount = $oFeed->process();
-        if ($iProductsCount > 0)
-        {
+        if($iProductsCount > 0) {
 
             $this->_setStatus(az_amz_cron::STATUS_OK, $type . ' was exported!');
             $sPathToFile = $oFeed->getTemporaryExportDir() . '/' . $oFeed->getFileNameBase();
         }
-        else
-        {
+        else {
 
             $this->_setStatus(az_amz_cron::STATUS_ERROR, 'No products were found!');
-            $sPathToFile = null;
+            $sPathToFile = NULL;
         }
-
 
         $this->_markEnd($sPathToFile);
         return;
@@ -87,6 +89,7 @@ class az_amz_cron extends oxUBase
 
     /**
      * Builds xml file for product feed
+     *
      * @return null
      */
     public function exportProducts()
@@ -103,6 +106,7 @@ class az_amz_cron extends oxUBase
 
     /**
      * Builds xml file for product image feed
+     *
      * @return null
      */
     public function exportProductImages()
@@ -113,6 +117,7 @@ class az_amz_cron extends oxUBase
 
     /**
      * Builds xml file for product price feed
+     *
      * @return null
      */
     public function exportProductPrices()
@@ -123,6 +128,7 @@ class az_amz_cron extends oxUBase
 
     /**
      * Builds xml file for product shipping override feed
+     *
      * @return null
      */
     public function exportShipping()
@@ -132,7 +138,7 @@ class az_amz_cron extends oxUBase
     }
 
     /**
-     * 
+     *
      */
     public function exportRemoveAll()
     {
@@ -145,6 +151,7 @@ class az_amz_cron extends oxUBase
 
     /**
      * Builds xml file for relations feed
+     *
      * @return null
      */
     public function exportRelations()
@@ -155,6 +162,7 @@ class az_amz_cron extends oxUBase
 
     /**
      * Upload products
+     *
      * @return null
      */
     public function uploadProducts()
@@ -165,6 +173,7 @@ class az_amz_cron extends oxUBase
 
     /**
      * Upload product images
+     *
      * @return null
      */
     public function uploadProductImages()
@@ -175,6 +184,7 @@ class az_amz_cron extends oxUBase
 
     /**
      * Upload product prices
+     *
      * @return null
      */
     public function uploadProductPrices()
@@ -185,7 +195,7 @@ class az_amz_cron extends oxUBase
 
     /**
      * Upload inventory
-     * 
+     *
      * @return null
      */
     public function uploadInventory()
@@ -196,7 +206,7 @@ class az_amz_cron extends oxUBase
 
     /**
      * Upload shipping (override feed)
-     * 
+     *
      * @return null
      */
     public function uploadShipping()
@@ -207,7 +217,7 @@ class az_amz_cron extends oxUBase
 
     /**
      * Upload removeAll (remove all feed)
-     * 
+     *
      * @return null
      */
     public function uploadRemoveAll()
@@ -218,7 +228,7 @@ class az_amz_cron extends oxUBase
 
     /**
      * Upload relations (relationship feed)
-     * 
+     *
      * @return null
      */
     public function uploadRelations()
@@ -229,24 +239,29 @@ class az_amz_cron extends oxUBase
 
     /**
      * Upload feed file to AMTU server
-     * 
-     * @param string $sFeedType Feed type
+     *
+     * @param string $sFeedType   Feed type
      * @param string $sRemoteFile Remote file name
-     * 
+     *
      * @return null
      */
     protected function _uploadFeed($sFeedType, $sRemoteFile)
     {
-        $oDestination = & oxNew('az_amz_destination');
+        /** @var az_amz_destination $oDestination */
+        $oDestination = oxNew('az_amz_destination');
         $oDestination->load($this->_destinationId);
 
-        $oFtp = oxNew('az_amz_ftp');
-        $blSuccess = $oFtp->connect($oDestination->az_amz_destinations__az_server->value, $oDestination->az_amz_destinations__az_ftpuser->value, $oDestination->az_amz_destinations__az_ftppassword->value, $oDestination->az_amz_destinations__az_ftppassivemode->value
+        /** @var az_amz_ftp $oFtp */
+        $oFtp      = oxNew('az_amz_ftp');
+        $blSuccess = $oFtp->connect(
+            $oDestination->az_amz_destinations__az_server->value,
+            $oDestination->az_amz_destinations__az_ftpuser->value,
+            $oDestination->az_amz_destinations__az_ftppassword->value,
+            $oDestination->az_amz_destinations__az_ftppassivemode->value
         );
-        if ($blSuccess)
-        {
-            $oDb = oxDb::getDb(false);
-            $sQ = "SELECT oxid, fileName 
+        if($blSuccess) {
+            $oDb = oxDb::getDb(FALSE);
+            $sQ  = "SELECT oxid, fileName
 					FROM az_amz_cronjobs
 					WHERE destinationId = '" . $this->_destinationId . "'
 					  AND feedType = '" . $sFeedType . "'
@@ -255,47 +270,47 @@ class az_amz_cron extends oxUBase
 					  LIMIT 1
 					";
 
-            $sFileName = null;
+            $sFileName = NULL;
 
-            if ($aCron = $oDb->getRow($sQ))
-            {
-                $sFileName = $aCron[1];
+            if($aCron = $oDb->getRow($sQ)) {
+                $sFileName     = $aCron[1];
                 $this->_cronId = $aCron[0];
             }
 
-            if ($sFileName)
-            {
+            if($sFileName) {
                 $sRemoteDir = $oDestination->az_amz_destinations__az_ftpdirectory->value;
-                $blRet = $oFtp->uploadFile($sFileName, $sRemoteFile, $sRemoteDir);
+                $blRet      = $oFtp->uploadFile($sFileName, $sRemoteFile, $sRemoteDir);
 
-                if ($blRet)
+                if($blRet) {
                     $sHistoryMsg = "Upload successful. File (" . $sFileName . ") was uploaded to directory " . $sRemoteDir . " on " . $oDestination->az_amz_destinations__az_server->value;
-                else
+                }
+                else {
                     $sHistoryMsg = "Upload failed. File (" . $sFileName . ") can`t be uploaded to directory " . $sRemoteDir . " on " . $oDestination->az_amz_destinations__az_server->value;
+                }
 
+                /** @var az_amz_history $oHistory */
                 $oHistory = oxNew('az_amz_history');
-
                 $oHistory->addRecord($oDestination, $sFeedType . "_upload", $sHistoryMsg);
-
                 $this->_setStatus(az_amz_cron::STATUS_OK, $sHistoryMsg);
-
                 $this->_markUploaded();
-            }else
+            }
+            else {
                 $this->_setStatus(az_amz_cron::STATUS_ERROR, 'Error: can`t find feed files to upload!');
+            }
         }
     }
 
     /**
      * Sets status of action
-     * 
-     * @param int $iStatus Status id
-     * @param string $sMsg Status message
-     * 
+     *
+     * @param int    $iStatus Status id
+     * @param string $sMsg    Status message
+     *
      * @retun null
      */
     protected function _setStatus($iStatus, $sMsg)
     {
-        $this->_blStatus = $iStatus;
+        $this->_blStatus   = $iStatus;
         $this->_sStatusMsg = $sMsg;
 
         return;
@@ -303,7 +318,7 @@ class az_amz_cron extends oxUBase
 
     /**
      * Show status message
-     * 
+
      */
     public function showStatus()
     {
@@ -312,45 +327,50 @@ class az_amz_cron extends oxUBase
 
     /**
      * Mark start of action
+     *
      * @param string $sFeedType Type of feed
-     * 
+     *
      * @return null
      */
     protected function _markStart($sFeedType)
     {
-        if ($this->_dryRun)
+        if($this->_dryRun) {
             return;
+        }
 
-        $oDb = oxDb::getDb(false);
+        $oDb   = oxDb::getDb(FALSE);
         $sOXID = oxUtilsObject::getInstance()->generateUID();
 
         $sQ = "INSERT INTO az_amz_cronjobs(`oxid`,`destinationId`,`feedType`,`startDate`,`action`)
-				 VALUES('{$sOXID}'," . $oDb->quote($this->_destinationId) . ", '{$sFeedType}', NOW(), " . $oDb->quote($this->_sFnc) . ")";
+				 VALUES('{$sOXID}'," . $oDb->quote($this->_destinationId) . ", '{$sFeedType}', NOW(), " . $oDb->quote(
+                $this->_sFnc
+            ) . ")";
 
-        if ($oDb->execute($sQ))
+        if($oDb->execute($sQ)) {
             $this->_cronId = $sOXID;
+        }
     }
 
     /**
      * Mark end of action
+     *
      * @param string $sFileName name of feed xml
-     * 
-     * @return null 
+     *
+     * @return null
      */
     protected function _markEnd($sFileName)
     {
-        if ($this->_dryRun)
+        if($this->_dryRun) {
             return;
+        }
 
-        $oDb = oxDb::getDb(false);
+        $oDb = oxDb::getDb(FALSE);
 
         $sCronId = $this->_cronId;
-        if ($sFileName)
-        {
+        if($sFileName) {
             $sQ = "UPDATE az_amz_cronjobs SET endDate = NOW(), fileName = '{$sFileName}' WHERE az_amz_cronjobs.oxid = '$sCronId'";
         }
-        else
-        {
+        else {
             $sQ = "DELETE FROM az_amz_cronjobs WHERE az_amz_cronjobs.oxid = '$sCronId'";
         }
 
@@ -359,12 +379,12 @@ class az_amz_cron extends oxUBase
 
     /**
      * Updates cronjob with date when feed was uploaded
-     * 
+     *
      * @return null
      */
     protected function _markUploaded()
     {
-        $oDb = oxDb::getDb(false);
+        $oDb = oxDb::getDb(FALSE);
 
         $sCronId = $this->_cronId;
 
@@ -375,15 +395,16 @@ class az_amz_cron extends oxUBase
 
     /**
      * Check last action and set id of last cron
-     * 
-     * @return boolean 
+     *
+     * @return boolean
      */
     protected function _checkLastCron()
     {
-        if ($this->_dryRun)
-            return false;
+        if($this->_dryRun) {
+            return FALSE;
+        }
 
-        $oDb = oxDb::getDb(false);
+        $oDb = oxDb::getDb(FALSE);
 
         $sQ = "SELECT az_amz_cronjobs.oxid
 				FROM az_amz_cronjobs
@@ -396,10 +417,11 @@ class az_amz_cron extends oxUBase
 
         $sCronId = $oDb->getOne($sQ);
 
-        if ($sCronId)
-            return true;
+        if($sCronId) {
+            return TRUE;
+        }
 
-        return false;
+        return FALSE;
     }
 
     public function render()
@@ -419,11 +441,14 @@ class az_amz_cron extends oxUBase
         $oDestination = & oxNew('az_amz_destination');
         $oDestination->load($this->_destinationId);
 
-        $oFtp = oxNew('az_amz_ftp');
-        $blSuccess = $oFtp->connect($oDestination->az_amz_destinations__az_server->value, $oDestination->az_amz_destinations__az_ftpuser->value, $oDestination->az_amz_destinations__az_ftppassword->value, $oDestination->az_amz_destinations__az_ftppassivemode->value
+        $oFtp      = oxNew('az_amz_ftp');
+        $blSuccess = $oFtp->connect(
+            $oDestination->az_amz_destinations__az_server->value,
+            $oDestination->az_amz_destinations__az_ftpuser->value,
+            $oDestination->az_amz_destinations__az_ftppassword->value,
+            $oDestination->az_amz_destinations__az_ftppassivemode->value
         );
-        if ($blSuccess)
-        {
+        if($blSuccess) {
             //echo "YES";
             $sLocalDir = $this->getConfig()->getConfigParam('sShopDir') . $this->_sReportsDir;
             //die($sLocalDir);
@@ -439,7 +464,7 @@ class az_amz_cron extends oxUBase
     public function importOrders()
     {
         echo "<br>\n CRONJOB - importOrders - START";
-        $oAmzOrders = oxNew("az_amz_orders");        
+        $oAmzOrders = oxNew("az_amz_orders");
         #echo $this->_sReportsDir;
         #echo "<br>".__FUNCTION__." :: ".__LINE__;
 

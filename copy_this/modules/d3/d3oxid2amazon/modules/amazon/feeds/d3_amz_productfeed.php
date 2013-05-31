@@ -17,6 +17,11 @@
 class d3_amz_productfeed extends d3_amz_productfeed_parent
 {
 
+    /**
+     * @param $id
+     *
+     * @return string
+     */
     public function getUpdateXml($id)
     {
         $amzConfig = $this->_getAmzConfig();
@@ -29,7 +34,7 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
         $sXml .= '<OperationType>Update</OperationType>' . $this->nl;
 
         $sSkuProp = $this->getSkuProperty();
-        $sSkuValue = $this->cutEanNumber($product->$sSkuProp->value);
+        $sSkuValue = $this->prepareEanNumber($product->$sSkuProp->value);
 
         /*
           $sXml .= '<Inventory>' . $this->nl;
@@ -286,6 +291,11 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
         return $sXml;
     }
 
+    /**
+     * @param $product
+     *
+     * @return string
+     */
     protected function _getProductDataXml($product)
     {
         $sXml = '';
@@ -307,9 +317,14 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
         return $sXml;
     }
 
-    protected function _getBrowseNodes($product)
+    /**
+     * @param object $product
+     *
+     * @return string
+     */
+    protected function _getBrowseNodes($oArticle)
     {
-        $aBrowsNodes = $this->_searchAmazonCategories4Article($product);
+        $aBrowsNodes = $this->_searchAmazonCategories4Article($oArticle);
         $sRet = "";
         $iCounter = 1;
 
@@ -329,13 +344,14 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
 
     /**
      *
-     * @param object $product
+     * @param object $oArticle
      * @return array 
      */
-    protected function _searchAmazonCategories4Article($product)
+    protected function _searchAmazonCategories4Article($oArticle)
     {
+        /** @var az_amz_categories $oaz_amz_categories */
         $oaz_amz_categories = oxnew('az_amz_categories');
-        return $oaz_amz_categories->searchAmazonCategories4Article($product);
+        return $oaz_amz_categories->searchAmazonCategories4Article($oArticle);
     }
 
     /**
@@ -358,6 +374,11 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
         return $sRet;
     }
 
+    /**
+     * @param $xml
+     *
+     * @return string
+     */
     protected function _escapeXmlValue($xml)
     {
         return htmlspecialchars($xml, ENT_NOQUOTES);
@@ -367,34 +388,12 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
     }
 
     /**
-     * remove 1 from start and end of Sting
-     * 
-     * 
-     * @param string $sArtikelNr
-     * @return string $sArtikelNrCut
+     * @param       $tagName
+     * @param       $value
+     * @param array $attributes
+     *
+     * @return string
      */
-    public function cutEanNumber($sArtikelNr)
-    {
-        $iPos1 = 0;
-        $iPos2 = strlen($sArtikelNr) - 1;
-        $sArtikelNrCut = '';
-
-        if ((substr($sArtikelNr, $iPos1, 1) == '1' && substr($sArtikelNr, $iPos2, 1) == '1'))
-            $sArtikelNrCut = substr($sArtikelNr, $iPos1 + 1, $iPos2 - 1);
-        else
-            $sArtikelNrCut = $sArtikelNr;
-
-        return $sArtikelNrCut;
-    }
-
-    function _GetD3Stock($iStock)  // $iStock berücksichtigt schon eine ggf. eingetragene Reserve
-    {
-        if ($iStock < 1)
-            return 0;
-        else
-            return $iStock;
-    }
-
     protected function _getXmlIfExistsRaw($tagName, $value, $attributes = array())
     {
         if (isset($value) && strlen($value) > 0)

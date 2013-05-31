@@ -587,4 +587,28 @@ abstract class az_amz_feed
         return (bool) oxDb::getDb()->getOne("select 1 from $sArticleTable where oxparentid='" . $oProduct->getId() . "'");
     }
 
+    /**
+     * prepareEanNumber
+     *
+     * @param string $sArtikelNr
+     * @return string $sArtikelNrCut
+     */
+    public function prepareEanNumber($sArtikelNr)
+    {
+        return $sArtikelNr;
+    }
+
+    /**
+     * @param $iStock
+     *
+     * @return int
+     */
+    function _GetD3Stock($iStock)  // $iStock berücksichtigt schon eine ggf. eingetragene Reserve
+    {
+        if ($iStock < 1)
+            return 0;
+        else
+            return $iStock;
+    }
+
 }

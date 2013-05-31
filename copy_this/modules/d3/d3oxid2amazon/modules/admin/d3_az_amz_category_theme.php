@@ -21,7 +21,8 @@ class d3_az_amz_category_theme extends d3_az_amz_category_theme_parent
 
         if (!$soxId)
             return;        
-        
+
+        /** @var az_amz_categories $oaz_amz_categories */
         $oaz_amz_categories = oxnew('az_amz_categories');
         $oaz_amz_categories->setCategoryMapping($soxId, $aThemeData);
     }
@@ -39,15 +40,16 @@ class d3_az_amz_category_theme extends d3_az_amz_category_theme_parent
         if (!$sOxid)
             return $aAmazonCats;
 
+        /** @var az_amz_categories $oaz_amz_categories */
         $oaz_amz_categories = oxnew('az_amz_categories');
         $aAmazonCats = $oaz_amz_categories->getAmazonCategories4Category($sOxid);
         return $aAmazonCats;
     }
-    
 
     public function getAmazonCategoriesFromCSV()
     {
         $aAmazonCats = array();
+        /** @var az_amz_categories $oaz_amz_categories */
         $oaz_amz_categories = oxnew('az_amz_categories');
         $aAmazonCats = $oaz_amz_categories->getAmazonCategoriesFromCSV();        
         #dumpvar($aAmazonCats);

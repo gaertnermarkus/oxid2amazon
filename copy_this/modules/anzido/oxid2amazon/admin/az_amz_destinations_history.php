@@ -16,7 +16,8 @@ class az_amz_destinations_history extends oxAdminDetails
     	$sDestinationId = oxConfig::getParameter( "oxid");
     	
     	$sRet = parent::render();
-    	
+
+        /** @var az_amz_history $oHistory */
     	$oHistory = oxNew('az_amz_history');
     	
     	$iPage = (int)oxConfig::getParameter("page");

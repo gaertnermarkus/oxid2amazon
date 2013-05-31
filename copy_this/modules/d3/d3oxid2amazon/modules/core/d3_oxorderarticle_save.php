@@ -17,7 +17,7 @@ class d3_oxorderarticle_save extends d3_oxorderarticle_save_parent
 
         if ($sAmzId && !$this->oxorderarticles__oxid->value)
         {
-
+            /** @var oxarticle $oArticle */
             $oArticle = oxNew("oxarticle");
             $oArticle->Load($this->oxorderarticles__oxartid->value);
             $iNewStock = $oArticle->oxarticles__oxstock->value - $this->oxorderarticles__oxamount->value;

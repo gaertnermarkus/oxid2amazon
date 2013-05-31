@@ -34,7 +34,7 @@ class d3_oxemail_amazon extends d3_oxemail_amazon_parent
      */
     public function d3AmazonSendOrderEmailToUser($oOrder, $sSubject = null)
     {
-        echo "<br>sendOrderEmailToUser";
+        #echo "<br>sendOrderEmailToUser";
         
         $myConfig = $this->getConfig();
 
@@ -103,7 +103,7 @@ class d3_oxemail_amazon extends d3_oxemail_amazon_parent
      */
     public function d3AmazonSendOrderEmailToOwner($oOrder, $sSubject = null)
     {
-        echo "<br>sendOrderEmailToOwner";
+        #echo "<br>sendOrderEmailToOwner";
 
         $myConfig = $this->getConfig();
 
@@ -170,6 +170,7 @@ class d3_oxemail_amazon extends d3_oxemail_amazon_parent
         $blSuccess = $this->send();
 
         // add user history
+        /** @var oxremark $oRemark */
         $oRemark = oxNew("oxremark");
         $oRemark->oxremark__oxtext = new oxField($this->getAltBody(), oxField::T_RAW);
         $oRemark->oxremark__oxparentid = new oxField($oOrder->getOrderUser()->getId(), oxField::T_RAW);

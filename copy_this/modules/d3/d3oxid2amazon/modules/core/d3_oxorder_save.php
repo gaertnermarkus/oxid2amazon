@@ -155,9 +155,10 @@ class d3_oxorder_save extends d3_oxorder_save_parent
         $this->_addOrderArticlesToBasket($oBasket, $aOrderArticles);
     }
 
+
     protected function _d3sendOrderByEmail($oUser = null, $oBasket = null, $oPayment = null)
     {
-        $sSubject = "Ihre Bestellung über Amazon beim Onlineshop www.gartenmoebel.de (#11529)";
+        $iRet = 0;
         $iRet = self::ORDER_STATE_MAILINGERROR;
 
         // add user, basket and payment to order
@@ -165,6 +166,7 @@ class d3_oxorder_save extends d3_oxorder_save_parent
         $this->_oBasket = $oBasket;
         $this->_oPayment = $oPayment;
 
+        /** @var oxemail $oxEmail */
         $oxEmail = oxNew('oxemail');
 
         // send order email to user

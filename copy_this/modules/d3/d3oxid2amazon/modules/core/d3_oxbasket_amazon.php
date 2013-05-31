@@ -2,29 +2,26 @@
 
 /**
  * oxbasket =>d3oxid2amazon/core/d3_oxbasket_amazon
- * 
- * D3 MG 2012-07-17 
+ * D3 MG 2012-07-17
  * - Dreigaben entfernen / _addBundles(
  * - d3calculateBasket4Amazon umbenannt
- * 
+
  */
 class d3_oxbasket_amazon extends d3_oxbasket_amazon_parent
 {
 
     public function d3calculateBasket4Amazon()
     {
-        if (!$this->isEnabled())
-        {
+        if(!$this->isEnabled()) {
             return;
         }
 
-        if (!$this->_blUpdateNeeded && !$blForceUpdate)
-        {
+        if(!$this->_blUpdateNeeded && !$blForceUpdate) {
             return;
         }
 
         $this->_aCosts = array();
-
+        /** @var oxprice _oPrice */
         $this->_oPrice = oxNew('oxprice');
         $this->_oPrice->setBruttoPriceMode();
 
@@ -39,8 +36,7 @@ class d3_oxbasket_amazon extends d3_oxbasket_amazon_parent
         #$this->_addBundles();
 
         // reserve active basket
-        if ($this->getConfig()->getConfigParam('blPsBasketReservationEnabled'))
-        {
+        if($this->getConfig()->getConfigParam('blPsBasketReservationEnabled')) {
             $this->getSession()->getBasketReservations()->reserveBasket($this);
         }
 
@@ -83,22 +79,5 @@ class d3_oxbasket_amazon extends d3_oxbasket_amazon_parent
 
         #$this->calculateBasket();
     }
-
-    public function ___getThumbnailUrl( $bSsl = null )
-    {
-        $oArticle = $this->getArticle( );
-        $sImgName = false;
-        $sDirname = "product/1/";
-        if ( !$this->_isFieldEmpty( "oxarticles__oxthumb" ) ) {
-            $sImgName = basename( $oArticle->oxarticles__oxthumb->value );
-            $sDirname = "product/thumb/";
-        } elseif ( !$this->_isFieldEmpty( "oxarticles__oxpic1" ) ) {
-            $sImgName = basename( $oArticle->oxarticles__oxpic1->value );
-        }
-
-        $sSize = $this->getConfig()->getConfigParam( 'sThumbnailsize' );
-        return oxPictureHandler::getInstance()->getProductPicUrl( $sDirname, $sImgName, $sSize, 0, $bSsl );
-    }
-
 }
 
