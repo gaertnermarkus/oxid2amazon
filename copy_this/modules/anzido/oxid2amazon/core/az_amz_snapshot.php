@@ -9,10 +9,15 @@ class az_amz_snapshot extends oxList
      * @var string
      */
     protected $_sObjectsInListName = 'az_amz_snapshotitem';
-    protected $_oAZConfig = null;
-    protected $_sDestinationId = null;
-    protected $_aFilter = null;
-    protected $_oDestination = null;
+
+    protected $_oAZConfig = NULL;
+
+    protected $_sDestinationId = NULL;
+
+    protected $_aFilter = NULL;
+
+    protected $_oDestination = NULL;
+
     protected $_sDataSeparator = ';;';
 
     /**
@@ -50,31 +55,27 @@ class az_amz_snapshot extends oxList
     public function setDestinationId($sDestId)
     {
         $this->_sDestinationId = $sDestId;
-        if (isset($this->_oDestination) && $this->_oDestination->getId() != $sDestId)
-        {
-            $this->_oDestination = null;
-            $this->_aFilter = null;
+        if(isset($this->_oDestination) && $this->_oDestination->getId() != $sDestId) {
+            $this->_oDestination = NULL;
+            $this->_aFilter      = NULL;
         }
     }
 
     public function setDestination($oDestination)
     {
-        $this->_oDestination = $oDestination;
+        $this->_oDestination   = $oDestination;
         $this->_sDestinationId = $oDestination->getId();
-        if (isset($this->_aFilter))
-        {
+        if(isset($this->_aFilter)) {
             unset($this->_aFilter);
         }
     }
 
     public function getFilter()
     {
-        if (!isset($this->_aFilter))
-        {
+        if(!isset($this->_aFilter)) {
             $oDestination = $this->getDestination();
-            $aFilter = array();
-            if ($oDestination->az_amz_destinations__az_productselector->value != '')
-            {
+            $aFilter      = array();
+            if($oDestination->az_amz_destinations__az_productselector->value != '') {
                 $aFilter = unserialize($oDestination->az_amz_destinations__az_productselector->getRawValue());
             }
             $this->_aFilter = $aFilter;
@@ -84,41 +85,40 @@ class az_amz_snapshot extends oxList
 
     /**
      * Get destination object.
-     * 
+     *
      * @return az_amz_Destination
      */
     public function getDestination()
     {
-        if ($this->_oDestionation)
+        if($this->_oDestionation) {
             return $this->_oDestionation;
+        }
 
-        if (!empty($this->_sDestinationId))
-        {
+        if(!empty($this->_sDestinationId)) {
             // loading destination data
             $oDestination = oxNew('az_amz_destination');
             $oDestination->Load($this->_sDestinationId);
             $this->_oDestination = $oDestination;
             return $this->_oDestination;
         }
-        return false;
+        return FALSE;
     }
 
     /**
      * Load preview list of articles
-     * 
+     *
      * @return array $aArticles Array of articles
      */
     public function getPreviewArticles()
     {
-        $sArtView = getViewName('oxarticles');
-        $sCatView = getViewName('oxcategories');
+        $sArtView     = getViewName('oxarticles');
+        $sCatView     = getViewName('oxcategories');
         $sArt2CatView = getViewName('oxobject2category');
 
-        $sQ = "SELECT $sArtView.* FROM $sArtView ";
+        $sQ      = "SELECT $sArtView.* FROM $sArtView ";
         $aFilter = $this->getFilter();
 
-        if (isset($aFilter['categories']))
-        {
+        if(isset($aFilter['categories'])) {
             $sQ .= " LEFT JOIN $sArt2CatView ON $sArt2CatView.oxobjectid = $sArtView.oxid ";
         }
 
@@ -133,10 +133,11 @@ class az_amz_snapshot extends oxList
         $oArticleList->selectString($sQ);
 
         // TODO EE 2.7: replace with $oArticleList->aList
-        if (sizeof($oArticleList->getArray()) > 0)
+        if(sizeof($oArticleList->getArray()) > 0) {
             return $oArticleList->getArray();
+        }
 
-        return false;
+        return FALSE;
     }
 
     protected function _getFilterWhere()
@@ -145,15 +146,16 @@ class az_amz_snapshot extends oxList
         $oDB = oxDb::getDb();
 
         $sArt2CatView = getViewName('oxobject2category');
-        $sArtView = getViewName('oxarticles');
+        $sArtView     = getViewName('oxarticles');
 
-        $aWhere = array();
+        $aWhere  = array();
         $aFilter = $this->getFilter();
 
         $sEanField = $sArtView . '.oxean';
 
-        if ($this->_oAZConfig->sEanField)
+        if($this->_oAZConfig->sEanField) {
             $sEanField = $this->_oAZConfig->sEanField;
+        }
 
         // only fields with non-empty EAN field value	
         // changed by TD, main articles do not need to have an EAN code
@@ -161,18 +163,16 @@ class az_amz_snapshot extends oxList
         $aWhere[] = "($sArtView.$sEanField != '' OR $sArtView.OXVARCOUNT > 0 )";
         $aWhere[] = $sArtView . ".oxparentid = ''";
 
-        if (isset($aFilter['categories']))
+        if(isset($aFilter['categories'])) {
             $aWhere[] = " $sArt2CatView.oxcatnid IN ('" . implode("','", $aFilter['categories']) . "')";
+        }
 
-        if (isset($aFilter['fields']) && sizeof($aFilter['fields']) > 0)
-        {
-            foreach ($aFilter['fields'] as $aField)
-            {
+        if(isset($aFilter['fields']) && sizeof($aFilter['fields']) > 0) {
+            foreach ($aFilter['fields'] as $aField) {
 
                 $sWhereLine = $aField['field'] . " " . $aField['operator'];
 
-                if ($this->_oAZConfig->isRequiredOperatorValue($aField['operator']))
-                {
+                if($this->_oAZConfig->isRequiredOperatorValue($aField['operator'])) {
 
                     $sWhereLine .= " " . $oDB->quote($aField['value']);
                 }
@@ -188,14 +188,14 @@ class az_amz_snapshot extends oxList
 
     /**
      * Makes a snapshot of set
-     * 
+
      */
     public function doSnapshot()
     {
         $oDB = oxDb::getDb();
 
-        $sArtView = getViewName('oxarticles');
-        $sCatView = getViewName('oxcategories');
+        $sArtView     = getViewName('oxarticles');
+        $sCatView     = getViewName('oxcategories');
         $sArt2CatView = getViewName('oxobject2category');
 
         // has to be loaded first cause content comes through magic getter
@@ -211,8 +211,9 @@ class az_amz_snapshot extends oxList
 
         $sQ .= " LEFT JOIN az_amz_snapshots ON ($sArtView.oxid = az_amz_snapshots.az_productid AND az_amz_snapshots.az_destinationid = '{$this->_sDestinationId}') ";
         $aFilter = $this->getFilter();
-        if (isset($aFilter['categories']))
+        if(isset($aFilter['categories'])) {
             $sQ .= " LEFT JOIN $sArt2CatView ON $sArt2CatView.oxobjectid = $sArtView.oxid ";
+        }
 
         $sWhere = $this->_getFilterWhere();
 
@@ -220,21 +221,18 @@ class az_amz_snapshot extends oxList
 
         $sQ .= " GROUP BY $sArtView.oxid";
         #die($sQ);
-        
+
         #echo $sQ;
         $rs = $oDB->execute($sQ);
 
-        if ($rs != false && $rs->recordCount() > 0)
-        {
-            while (!$rs->EOF)
-            {
+        if($rs != FALSE && $rs->recordCount() > 0) {
+            while (!$rs->EOF) {
                 //$oProduct = oxNew('oxarticle');
                 //$oProduct->Load($rs->fields[0]);
 
                 $oAmzSnapshotItem = oxNew('az_amz_snapshotitem');
 
-                if ($rs->fields[1] != '')
-                {
+                if($rs->fields[1] != '') {
                     $oAmzSnapshotItem->Load($rs->fields[1]);
                 }
 
@@ -243,20 +241,16 @@ class az_amz_snapshot extends oxList
                 $oAmzSnapshotItem->save();
 
                 //START: Variants are saved to snapshot
-                if ($this->_oAZConfig->blAmazonExportVariants == '1')
-                {
+                if($this->_oAZConfig->blAmazonExportVariants == '1') {
                     //$aVariants = $oProduct->getVariants(false);
                     $aVariants = $this->_getArticleVariants($rs->fields[0]);
 
-                    if (sizeof($aVariants) > 0)
-                    {
-                        foreach ($aVariants as $oVariant)
-                        {
-                            $blSave = true;
+                    if(sizeof($aVariants) > 0) {
+                        foreach ($aVariants as $oVariant) {
+                            $blSave           = TRUE;
                             $oAmzSnapshotItem = oxNew('az_amz_snapshotitem');
 
-                            if ($rs->fields[1] != '')
-                            {
+                            if($rs->fields[1] != '') {
                                 $oAmzSnapshotItem->LoadByProductId($oVariant->oxid, $this->_sDestinationId);
                             }
 
@@ -265,16 +259,18 @@ class az_amz_snapshot extends oxList
                             // item should not be saved if sku field is empty
                             // if sku field of variant is empty, shop fills it with value from parent. so we have to check
                             // if parent value equals variant value of sku
-                            if ($oVariant->sku == $rs->fields[2])
-                                $blSave = false;
+                            if($oVariant->sku == $rs->fields[2]) {
+                                $blSave = FALSE;
+                            }
 
                             // DOC: if articles have NO EAN - another field should be assigned in admin
-                            if ($oVariant->ean == $rs->fields[3])
-                                $blSave = false;
+                            if($oVariant->ean == $rs->fields[3]) {
+                                $blSave = FALSE;
+                            }
 
-
-                            if ($blSave)
+                            if($blSave) {
                                 $oAmzSnapshotItem->save();
+                            }
                         }
                     }
                 }
@@ -285,26 +281,29 @@ class az_amz_snapshot extends oxList
         }
     }
 
+    /**
+     * @param $sParentId
+     *
+     * @return array
+     */
     protected function _getArticleVariants($sParentId)
     {
         // has to be loaded first cause content comes through magic getter
         $sSkuField = $this->_oAZConfig->sSkuField;
         $sEanField = $this->_oAZConfig->sEanField;
 
-        $sArtView = getViewName('oxarticles');
-        $sSelect = "select oxid, " . $sSkuField . ", " . $sEanField . " from $sArtView where oxparentid = '$sParentId' ";
-        $rs = oxDb::getDb()->Execute($sSelect);
+        $sArtView  = getViewName('oxarticles');
+        $sSelect   = "select oxid, " . $sSkuField . ", " . $sEanField . " from $sArtView where oxparentid = '$sParentId' ";
+        $rs        = oxDb::getDb()->Execute($sSelect);
         $aVariants = array();
-        if ($rs != false && $rs->RecordCount() > 0)
-        {
+        if($rs != FALSE && $rs->RecordCount() > 0) {
 
-            while (!$rs->EOF)
-            {
-                $oVariant = new stdClass();
+            while (!$rs->EOF) {
+                $oVariant       = new stdClass();
                 $oVariant->oxid = $rs->fields[0];
-                $oVariant->sku = $rs->fields[1];
-                $oVariant->ean = $rs->fields[2];
-                $aVariants[] = $oVariant;
+                $oVariant->sku  = $rs->fields[1];
+                $oVariant->ean  = $rs->fields[2];
+                $aVariants[]    = $oVariant;
                 $rs->MoveNext();
             }
         }
@@ -313,7 +312,7 @@ class az_amz_snapshot extends oxList
 
     /**
      * Get Sql to select changed product ids
-     * 
+     *
      * @return string Sql query
      */
     protected function _getChangedProductSql()
@@ -323,22 +322,21 @@ class az_amz_snapshot extends oxList
         // possibly replaceable with oxNew()
         $oSnapshotItem = $this->getBaseObject();
 
-        $aCheckSQL = array();
+        $aCheckSQL   = array();
         $aOxidFields = array();
 
         $sQ = "SELECT * FROM ( ";
         $sQ .= "SELECT $sArtView.oxid AS oxarticle_oxid, az_amz_snapshots.* ";
 
-        $aHashFields = $oSnapshotItem->getProductHashFields();
+        $aHashFields     = $oSnapshotItem->getProductHashFields();
         $sProductHashSQL = "SnapshotItems." . implode(",SnapshotItems.", $aHashFields);
 
         $aOxidFields = array_merge($aOxidFields, $aHashFields);
 
         $aTimestampCheckSQL[] = "az_amz_snapshots.az_timestamp < $sArtView.oxtimestamp";
-        $aCheckSQL[] = "SnapshotItems.az_hash != MD5(CONCAT($sProductHashSQL))";
+        $aCheckSQL[]          = "SnapshotItems.az_hash != MD5(CONCAT($sProductHashSQL))";
 
-        if (sizeof($aOxidFields) > 0)
-        {
+        if(sizeof($aOxidFields) > 0) {
             $sSubSelectFields = "{$sArtView}." . implode(",{$sArtView}.", $aOxidFields);
             $sQ .= "," . $sSubSelectFields;
         }
@@ -348,8 +346,7 @@ class az_amz_snapshot extends oxList
 				    AND az_amz_snapshots.az_destinationid = '{$this->_sDestinationId}' 
 				";
 
-        if (sizeof($aTimestampCheckSQL))
-        {
+        if(sizeof($aTimestampCheckSQL)) {
             $sQ .= " AND (" . implode(" OR ", $aTimestampCheckSQL) . ")";
         }
 
@@ -357,42 +354,42 @@ class az_amz_snapshot extends oxList
 
         $sQ .= ") SnapshotItems ";
 
-        if (sizeof($aCheckSQL) > 0)
+        if(sizeof($aCheckSQL) > 0) {
             $sQ .= " WHERE (" . implode(" OR ", $aCheckSQL) . ")";
+        }
 
-        echo "<hr>";
-        echo $sQ;
-        echo "<hr>";
+        #echo "<hr>";
+        #echo $sQ;
+        #echo "<hr>";
 
         return $sQ;
     }
 
     /**
      * Get Sql to select ids of products with changed prices
-     * 
+     *
      * @return string Sql query
      */
     protected function _getChangedPriceSql()
     {
-        $sArtView = getViewName('oxarticles');
+        $sArtView      = getViewName('oxarticles');
         $oSnapshotItem = $this->getBaseObject();
 
-        $aCheckSQL = array();
+        $aCheckSQL   = array();
         $aOxidFields = array();
 
         $sQ = "SELECT * FROM ( ";
         $sQ .= "SELECT $sArtView.oxid AS oxarticle_oxid, az_amz_snapshots.* ";
 
-        $aHashFields = $oSnapshotItem->getPriceHashFields();
+        $aHashFields   = $oSnapshotItem->getPriceHashFields();
         $sPriceHashSQL = "SnapshotItems." . implode(",SnapshotItems.", $aHashFields);
 
         $aOxidFields = array_merge($aOxidFields, $aHashFields);
 
         $aTimestampCheckSQL[] = "az_amz_snapshots.az_price_timestamp < $sArtView.oxtimestamp";
-        $aCheckSQL[] = "SnapshotItems.az_pricehash != MD5(CONCAT($sPriceHashSQL))";
+        $aCheckSQL[]          = "SnapshotItems.az_pricehash != MD5(CONCAT($sPriceHashSQL))";
 
-        if (sizeof($aOxidFields) > 0)
-        {
+        if(sizeof($aOxidFields) > 0) {
             $sSubSelectFields = "{$sArtView}." . implode(",{$sArtView}.", $aOxidFields);
             $sQ .= "," . $sSubSelectFields;
         }
@@ -402,32 +399,34 @@ class az_amz_snapshot extends oxList
 				    AND az_amz_snapshots.az_destinationid = '{$this->_sDestinationId}' 
 				";
 
-        if (sizeof($aTimestampCheckSQL))
+        if(sizeof($aTimestampCheckSQL)) {
             $sQ .= " AND (" . implode(" OR ", $aTimestampCheckSQL) . ")";
+        }
 
         $sQ .= ") SnapshotItems ";
 
-        if (sizeof($aCheckSQL) > 0)
+        if(sizeof($aCheckSQL) > 0) {
             $sQ .= " WHERE (" . implode(" OR ", $aCheckSQL) . ")";
+        }
 
-        echo "<hr>";
-        echo $sQ;
-        echo "<hr>";        
-        
+        #echo "<hr>";
+        #echo $sQ;
+        #echo "<hr>";
+
         return $sQ;
     }
 
     /**
      * Get Sql to select ids of products with changed images
-     * 
+     *
      * @return string Sql query
      */
     protected function _getChangedImageSql()
     {
-        $sArtView = getViewName('oxarticles');
+        $sArtView      = getViewName('oxarticles');
         $oSnapshotItem = $this->getBaseObject();
 
-        $aCheckSQL = array();
+        $aCheckSQL   = array();
         $aOxidFields = array();
 
         $sQ = "SELECT * FROM ( ";
@@ -435,13 +434,11 @@ class az_amz_snapshot extends oxList
 
         $oDestination = $this->getDestination();
 
-        $sShopId = null;
+        $sShopId = NULL;
 
-        if ($oDestination)
-        {
+        if($oDestination) {
             $sShopId = $oDestination->az_amz_destinations__oxshopid->value;
         }
-
 
         $aHashFields = $oSnapshotItem->getPictureHashFields($sShopId);
 
@@ -453,10 +450,9 @@ class az_amz_snapshot extends oxList
         $aOxidFields = array_merge($aOxidFields, $aHashFields);
 
         $aTimestampCheckSQL[] = "az_amz_snapshots.az_picture_timestamp < $sArtView.oxtimestamp";
-        $aCheckSQL[] = "SnapshotItems.az_picturehash != MD5(CONCAT($sPictureHashSQL))";
+        $aCheckSQL[]          = "SnapshotItems.az_picturehash != MD5(CONCAT($sPictureHashSQL))";
 
-        if (sizeof($aOxidFields) > 0)
-        {
+        if(sizeof($aOxidFields) > 0) {
             $sSubSelectFields = "{$sArtView}." . implode(",{$sArtView}.", $aOxidFields);
             $sQ .= "," . $sSubSelectFields;
         }
@@ -467,15 +463,13 @@ class az_amz_snapshot extends oxList
 				";
         $aIds = array();
 
-        if (sizeof($aTimestampCheckSQL))
-        {
+        if(sizeof($aTimestampCheckSQL)) {
             $sQ .= " AND (" . implode(" OR ", $aTimestampCheckSQL) . ")";
         }
 
         $sQ .= ") SnapshotItems ";
 
-        if (sizeof($aCheckSQL) > 0)
-        {
+        if(sizeof($aCheckSQL) > 0) {
             $sQ .= " WHERE (" . implode(" OR ", $aCheckSQL) . ")";
         }
 
@@ -483,21 +477,21 @@ class az_amz_snapshot extends oxList
         #echo "<br><b>Image-Feed</b><br>";
         #echo $sQ;
         #echo "<hr>";
-        
+
         return $sQ;
     }
 
     /**
      * Get Sql to select ids of products with changed inventory
-     * 
+     *
      * @return string Sql query
      */
     protected function _getChangedInventorySql()
     {
-        $sArtView = getViewName('oxarticles');
+        $sArtView      = getViewName('oxarticles');
         $oSnapshotItem = $this->getBaseObject();
 
-        $aCheckSQL = array();
+        $aCheckSQL   = array();
         $aOxidFields = array();
 
         $sQ = "SELECT * FROM ( ";
@@ -513,8 +507,7 @@ class az_amz_snapshot extends oxList
         //$aTimestampCheckSQL[] = "az_amz_snapshots.az_inventory_timestamp < $sArtView.oxtimestamp";
         $aCheckSQL[] = "SnapshotItems.az_inventoryhash != MD5(CONCAT({$sInventoryHashSQL}))";
 
-        if (sizeof($aOxidFields) > 0)
-        {
+        if(sizeof($aOxidFields) > 0) {
             $sSubSelectFields = "{$sArtView}." . implode(",{$sArtView}.", $aOxidFields);
             $sQ .= "," . $sSubSelectFields;
         }
@@ -533,8 +526,7 @@ class az_amz_snapshot extends oxList
 
         $sQ .= ") SnapshotItems ";
 
-        if (sizeof($aCheckSQL) > 0)
-        {
+        if(sizeof($aCheckSQL) > 0) {
             $sQ .= " WHERE (" . implode(" OR ", $aCheckSQL) . ")";
         }
 
@@ -544,15 +536,15 @@ class az_amz_snapshot extends oxList
 
     /**
      * Get Sql to select ids of products with changed shipping
-     * 
+     *
      * @return string Sql query
      */
     protected function _getChangedShippingSql()
     {
-        $sArtView = getViewName('oxarticles');
+        $sArtView      = getViewName('oxarticles');
         $oSnapshotItem = $this->getBaseObject();
 
-        $aCheckSQL = array();
+        $aCheckSQL   = array();
         $aOxidFields = array();
 
         $sQ = "SELECT * FROM ( ";
@@ -565,10 +557,9 @@ class az_amz_snapshot extends oxList
         $aOxidFields = array_merge($aOxidFields, $aHashFields);
 
         $aTimestampCheckSQL[] = "az_amz_snapshots.az_shipping_timestamp < $sArtView.oxtimestamp";
-        $aCheckSQL[] = "SnapshotItems.az_shippinghash != MD5(CONCAT({$sShippingHashSQL}))";
+        $aCheckSQL[]          = "SnapshotItems.az_shippinghash != MD5(CONCAT({$sShippingHashSQL}))";
 
-        if (sizeof($aOxidFields) > 0)
-        {
+        if(sizeof($aOxidFields) > 0) {
             $sSubSelectFields = "{$sArtView}." . implode(",{$sArtView}.", $aOxidFields);
             $sQ .= "," . $sSubSelectFields;
         }
@@ -579,15 +570,13 @@ class az_amz_snapshot extends oxList
 				";
         $aIds = array();
 
-        if (sizeof($aTimestampCheckSQL))
-        {
+        if(sizeof($aTimestampCheckSQL)) {
             $sQ .= " AND (" . implode(" OR ", $aTimestampCheckSQL) . ")";
         }
 
         $sQ .= ") SnapshotItems ";
 
-        if (sizeof($aCheckSQL) > 0)
-        {
+        if(sizeof($aCheckSQL) > 0) {
             $sQ .= " WHERE (" . implode(" OR ", $aCheckSQL) . ")";
         }
 
@@ -596,7 +585,7 @@ class az_amz_snapshot extends oxList
 
     /**
      * Get Sql to select ids of products with changed variant relations
-     * 
+     *
      * @return string Sql query
      */
     protected function _getChangedVariantSql()
@@ -624,21 +613,20 @@ class az_amz_snapshot extends oxList
 
     /**
      * Returns ids of changed products
-     * 
-     * @param boolean $blCheckProductChanges checks if product fields were changed
-     * @param boolean $blCheckPriceChanges checks if price was changed.
-     * @param boolean $blCheckPictureChanges checks if pictures were changed.
+     *
+     * @param boolean $blCheckProductChanges   checks if product fields were changed
+     * @param boolean $blCheckPriceChanges     checks if price was changed.
+     * @param boolean $blCheckPictureChanges   checks if pictures were changed.
      * @param boolean $blCheckInventoryChanges checks if inventory were changed
-     * 
+     *
      * @return array $aProductIds Product Ids
      */
     public function getChangedProductIds($sType)
     {
-        $oDB = oxDb::getDb();
+        $oDB  = oxDb::getDb();
         $aIds = array();
 
-        switch ($sType)
-        {
+        switch ($sType) {
             case Az_Amz_Feed::TYPE_PRODUCT:
                 $sQ = $this->_getChangedProductSql();
                 break;
@@ -666,10 +654,8 @@ class az_amz_snapshot extends oxList
 
         $rs = $oDB->execute($sQ);
 
-        if ($rs != false && $rs->recordCount() > 0)
-        {
-            while (!$rs->EOF)
-            {
+        if($rs != FALSE && $rs->recordCount() > 0) {
+            while (!$rs->EOF) {
                 $aIds[] = $rs->fields[0];
                 $rs->moveNext();
             }
@@ -680,14 +666,14 @@ class az_amz_snapshot extends oxList
 
     /**
      * Returns article numbers of deleted products
-     * 
+     *
      * @return array $aArtSKUs Product SKUs
      */
     public function getDeletedProductArtNums()
     {
         $oDB = oxDb::getDb();
 
-        $sArtView = getViewName('oxarticles');
+        $sArtView      = getViewName('oxarticles');
         $oSnapshotItem = $this->getBaseObject();
 
         $aCheckSQL = array();
@@ -703,10 +689,8 @@ class az_amz_snapshot extends oxList
 
         $aArtSKUs = array();
 
-        if ($rs != false && $rs->recordCount() > 0)
-        {
-            while (!$rs->EOF)
-            {
+        if($rs != FALSE && $rs->recordCount() > 0) {
+            while (!$rs->EOF) {
                 $aArtSKUs[] = $rs->fields[0];
                 $rs->moveNext();
             }
@@ -717,7 +701,7 @@ class az_amz_snapshot extends oxList
 
     /**
      * Returns list of parent and variant articles which relations must be deleted
-     * 
+     *
      * @return array
      */
     public function getDeletedVariantRelations()
@@ -739,25 +723,20 @@ class az_amz_snapshot extends oxList
 				  HAVING VariantIds != az_amz_snapshots.az_variant_data
 			";
 
-        $rs = $oDB->Execute($sQ);
+        $rs               = $oDB->Execute($sQ);
         $aCurrentVariants = array();
-        $aLastVariants = array();
-        $aReturn = array();
+        $aLastVariants    = array();
+        $aReturn          = array();
 
-        if ($rs != false && $rs->recordCount() > 0)
-        {
-            while (!$rs->EOF)
-            {
-                $aCurrentVariants = explode($this->_sDataSeparator, $rs->fields[1]);
+        if($rs != FALSE && $rs->recordCount() > 0) {
+            while (!$rs->EOF) {
+                $aCurrentVariants    = explode($this->_sDataSeparator, $rs->fields[1]);
                 $aLastExportVariants = explode($this->_sDataSeparator, $rs->fields[2]);
 
                 $aDeletedRelations = array_diff($aLastExportVariants, $aCurrentVariants);
-                if ($aDeletedRelations && sizeof($aDeletedRelations) > 0)
-                {
-                    foreach ($aDeletedRelations as $sVariantArtNum)
-                    {
-                        if ($sVariantArtNum != '')
-                        {
+                if($aDeletedRelations && sizeof($aDeletedRelations) > 0) {
+                    foreach ($aDeletedRelations as $sVariantArtNum) {
+                        if($sVariantArtNum != '') {
                             $aReturn[] = array($sVariantArtNum, $rs->fields[0]);
                         }
                     }
@@ -770,15 +749,16 @@ class az_amz_snapshot extends oxList
 
     /**
      * Returns list of variant ids which are related to Parent ($sProductId) product
-     * @param string $sProductId Parent product Id
-     * @param boolean $blOnlyNew if true - return only new relations
+     *
+     * @param string  $sProductId Parent product Id
+     * @param boolean $blOnlyNew  if true - return only new relations
+     *
      * @return array
      */
-    public function getProductRelations($sProductId, $blOnlyNew = true)
+    public function getProductRelations($sProductId, $blOnlyNew = TRUE)
     {
-        if ($sProductId == '')
-        {
-            return false;
+        if($sProductId == '') {
+            return FALSE;
         }
 
         $oSnapshotItem = oxNew('az_amz_snapshotitem');
@@ -787,8 +767,7 @@ class az_amz_snapshot extends oxList
         $sVariantsData = $oSnapshotItem->az_amz_snapshots__az_variant_data->value;
 
         $aLastExportVariants = array();
-        if ($sVariantsData != '')
-        {
+        if($sVariantsData != '') {
             $aLastExportVariants = explode($this->_sDataSeparator, $sVariantsData);
         }
 
@@ -802,45 +781,42 @@ class az_amz_snapshot extends oxList
 					  AND oxarticles.oxactive = '1'
 				";
 
-        $rs = $oDb->execute($sQ);
+        $rs       = $oDb->execute($sQ);
         $aArtSKUs = array();
 
-        if ($rs != false && $rs->recordCount() > 0)
-        {
-            while (!$rs->EOF)
-            {
-                if (!in_array($rs->fields[0], $aLastExportVariants))
-                {
+        if($rs != FALSE && $rs->recordCount() > 0) {
+            while (!$rs->EOF) {
+                if(!in_array($rs->fields[0], $aLastExportVariants)) {
                     $aArtSKUs[] = $rs->fields[0];
                 }
                 $rs->moveNext();
             }
         }
-        else
-        {
-            return false;
+        else {
+            return FALSE;
         }
-
 
         return $aArtSKUs;
     }
 
+    /**
+     * @return array
+     */
     public function getAllProductArtNums()
     {
-        $oDB = oxDb::getDb();
+        $oDB      = oxDb::getDb();
         $sArtView = getViewName('oxarticles');
         //##TODO: can sku field be changed here? 
         $sSkuField = $this->_oAZConfig->sSkuField;
-        $sQ = "SELECT DISTINCT a.$sSkuField 
+        $sQ        = "SELECT DISTINCT a.$sSkuField
     	    FROM $sArtView a, az_amz_snapshots s 
     	    WHERE
     	       a.oxid = s.az_productid
     	       AND s.az_destinationid = ?";
-        $res = $oDB->Execute($sQ, array($this->getDestination()->getId()));
+        $res       = $oDB->Execute($sQ, array($this->getDestination()->getId()));
 
         $ids = array();
-        while (!$res->EOF)
-        {
+        while (!$res->EOF) {
             $ids[] = $res->fields[$sSkuField];
             $res->MoveNext();
         }
@@ -850,11 +826,12 @@ class az_amz_snapshot extends oxList
 
     /**
      * Generate Product feed hash
+     *
      * @param array $aIds Array of product ids
-     * 
+     *
      * @return boolean
      */
-    protected function _markExportedProducts($aIds = null)
+    protected function _markExportedProducts($aIds = NULL)
     {
         $oDB = oxDb::getDb();
 
@@ -862,13 +839,15 @@ class az_amz_snapshot extends oxList
 
         $oSnapshotItem = $this->getBaseObject();
 
-        if ($aIds && sizeof($aIds) > 0)
-        {
+        if($aIds && sizeof($aIds) > 0) {
             $sIdSQL = "'" . implode("','", $aIds) . "'";
         }
 
         $aHashFields = $oSnapshotItem->getProductHashFields();
-        $aHashSQL[] = " az_amz_snapshots.az_hash = MD5(CONCAT($sArtView." . implode(",$sArtView.", $aHashFields) . ")) ";
+        $aHashSQL[]  = " az_amz_snapshots.az_hash = MD5(CONCAT($sArtView." . implode(
+                ",$sArtView.",
+                $aHashFields
+            ) . ")) ";
         //timestamp update
         $aHashSQL[] = "az_amz_snapshots.az_timestamp = $sArtView.oxtimestamp";
 
@@ -881,19 +860,21 @@ class az_amz_snapshot extends oxList
 				 AND az_amz_snapshots.az_productid IN ($sIdSQL)
 				";
 
-        if ($oDB->execute($sQ))
-            return true;
+        if($oDB->execute($sQ)) {
+            return TRUE;
+        }
 
-        return false;
+        return FALSE;
     }
 
     /**
      * Generate Price feed hash
+     *
      * @param array $aIds Array of product ids
-     * 
+     *
      * @return boolean
      */
-    protected function _markExportedPrices($aIds = null)
+    protected function _markExportedPrices($aIds = NULL)
     {
         $oDB = oxDb::getDb();
 
@@ -901,13 +882,15 @@ class az_amz_snapshot extends oxList
 
         $oSnapshotItem = $this->getBaseObject();
 
-        if ($aIds && sizeof($aIds) > 0)
-        {
+        if($aIds && sizeof($aIds) > 0) {
             $sIdSQL = "'" . implode("','", $aIds) . "'";
         }
 
         $aHashFields = $oSnapshotItem->getPriceHashFields();
-        $aHashSQL[] = " az_amz_snapshots.az_pricehash = MD5(CONCAT($sArtView." . implode(",$sArtView.", $aHashFields) . ")) ";
+        $aHashSQL[]  = " az_amz_snapshots.az_pricehash = MD5(CONCAT($sArtView." . implode(
+                ",$sArtView.",
+                $aHashFields
+            ) . ")) ";
         //timestamp update
         $aHashSQL[] = "az_amz_snapshots.az_price_timestamp = $sArtView.oxtimestamp";
 
@@ -920,19 +903,21 @@ class az_amz_snapshot extends oxList
 				 AND az_amz_snapshots.az_productid IN ($sIdSQL)
 				";
 
-        if ($oDB->execute($sQ))
-            return true;
+        if($oDB->execute($sQ)) {
+            return TRUE;
+        }
 
-        return false;
+        return FALSE;
     }
 
     /**
      * Generate Picture feed hash
+     *
      * @param array $aIds Array of product ids
-     * 
+     *
      * @return boolean
      */
-    protected function _markExportedImages($aIds = null)
+    protected function _markExportedImages($aIds = NULL)
     {
         $oDB = oxDb::getDb();
 
@@ -940,23 +925,24 @@ class az_amz_snapshot extends oxList
 
         $oSnapshotItem = $this->getBaseObject();
 
-        if ($aIds && sizeof($aIds) > 0)
-        {
+        if($aIds && sizeof($aIds) > 0) {
             $sIdSQL = "'" . implode("','", $aIds) . "'";
         }
 
         $oDestination = $this->getDestination();
 
-        $sShopId = null;
+        $sShopId = NULL;
 
-        if ($oDestination)
-        {
+        if($oDestination) {
             $sShopId = $oDestination->az_amz_destinations__oxshopid->value;
         }
 
         $aHashFields = $oSnapshotItem->getPictureHashFields($sShopId);
 
-        $aHashSQL[] = " az_amz_snapshots.az_picturehash = MD5(CONCAT($sArtView." . implode(",$sArtView.", $aHashFields) . ")) ";
+        $aHashSQL[] = " az_amz_snapshots.az_picturehash = MD5(CONCAT($sArtView." . implode(
+                ",$sArtView.",
+                $aHashFields
+            ) . ")) ";
 
         //timestamp update
         $aHashSQL[] = "az_amz_snapshots.az_picture_timestamp = $sArtView.oxtimestamp";
@@ -970,19 +956,21 @@ class az_amz_snapshot extends oxList
 				 AND az_amz_snapshots.az_productid IN ($sIdSQL)
 				";
 
-        if ($oDB->execute($sQ))
-            return true;
+        if($oDB->execute($sQ)) {
+            return TRUE;
+        }
 
-        return false;
+        return FALSE;
     }
 
     /**
      * Generate Inventory feed hash
+     *
      * @param array $aIds Array of product ids
-     * 
+     *
      * @return boolean
      */
-    protected function _markExportedInventory($aIds = null)
+    protected function _markExportedInventory($aIds = NULL)
     {
         $oDB = oxDb::getDb();
 
@@ -990,12 +978,13 @@ class az_amz_snapshot extends oxList
 
         $oSnapshotItem = $this->getBaseObject();
 
-        if ($aIds && sizeof($aIds) > 0)
+        if($aIds && sizeof($aIds) > 0) {
             $sIdSQL = "'" . implode("','", $aIds) . "'";
+        }
 
-        $aHashFields = $oSnapshotItem->getInventoryHashFields();
+        $aHashFields       = $oSnapshotItem->getInventoryHashFields();
         $sInventoryHashSQL = "{$sArtView}." . implode(",{$sArtView}.", $aHashFields);
-        $aHashSQL[] = "az_amz_snapshots.az_inventoryhash = MD5(CONCAT({$sInventoryHashSQL}))";
+        $aHashSQL[]        = "az_amz_snapshots.az_inventoryhash = MD5(CONCAT({$sInventoryHashSQL}))";
 
         //timestamp update
         $aHashSQL[] = "az_amz_snapshots.az_inventory_timestamp = $sArtView.oxtimestamp";
@@ -1008,22 +997,24 @@ class az_amz_snapshot extends oxList
 				 AND az_amz_snapshots.az_destinationid = '{$this->_sDestinationId}'						
 				 AND az_amz_snapshots.az_productid IN ($sIdSQL)
 				";
-#echo "<hr>";
-#echo $sQ;                                
-#echo "<hr>";
-        if ($oDB->execute($sQ))
-            return true;
+        #echo "<hr>";
+        #echo $sQ;
+        #echo "<hr>";
+        if($oDB->execute($sQ)) {
+            return TRUE;
+        }
 
-        return false;
+        return FALSE;
     }
 
     /**
      * Generate Shipping feed hash
+     *
      * @param array $aIds Array of product ids
-     * 
+     *
      * @return boolean
      */
-    protected function _markExportedShipping($aIds = null)
+    protected function _markExportedShipping($aIds = NULL)
     {
         $oDB = oxDb::getDb();
 
@@ -1031,15 +1022,14 @@ class az_amz_snapshot extends oxList
 
         $oSnapshotItem = $this->getBaseObject();
 
-        if ($aIds && sizeof($aIds) > 0)
-        {
+        if($aIds && sizeof($aIds) > 0) {
             $sIdSQL = "'" . implode("','", $aIds) . "'";
         }
 
         $aHashFields = $oSnapshotItem->getInventoryHashFields();
 
         $sInventoryHashSQL = "{$sArtView}." . implode(",{$sArtView}.", $aHashFields);
-        $aHashSQL[] = "az_amz_snapshots.az_shippinghash = MD5(CONCAT({$sInventoryHashSQL}))";
+        $aHashSQL[]        = "az_amz_snapshots.az_shippinghash = MD5(CONCAT({$sInventoryHashSQL}))";
 
         //timestamp update
         $aHashSQL[] = "az_amz_snapshots.az_shipping_timestamp = $sArtView.oxtimestamp";
@@ -1053,19 +1043,21 @@ class az_amz_snapshot extends oxList
 				 AND az_amz_snapshots.az_productid IN ($sIdSQL)
 				";
 
-        if ($oDB->execute($sQ))
-            return true;
+        if($oDB->execute($sQ)) {
+            return TRUE;
+        }
 
-        return false;
+        return FALSE;
     }
 
     /**
      * Generate Variant relation feed hash
+     *
      * @param array $aIds Array of product ids
-     * 
+     *
      * @return boolean
      */
-    protected function _markExportedVariantRelation($aIds = null)
+    protected function _markExportedVariantRelation($aIds = NULL)
     {
         $oDB = oxDb::getDb();
 
@@ -1075,8 +1067,7 @@ class az_amz_snapshot extends oxList
 
         $oSnapshotItem = $this->getBaseObject();
 
-        if ($aIds && sizeof($aIds) > 0)
-        {
+        if($aIds && sizeof($aIds) > 0) {
             $sIdSQL = "'" . implode("','", $aIds) . "'";
         }
 
@@ -1104,25 +1095,26 @@ class az_amz_snapshot extends oxList
 				WHERE az_amz_snapshots.az_productid IN ($sIdSQL)
 				";
 
-        if ($oDB->execute($sQ))
-            return true;
+        if($oDB->execute($sQ)) {
+            return TRUE;
+        }
 
-        return false;
+        return FALSE;
     }
 
     /**
      * Recalculates hashes
-     * @param array $aIds array of product ids
+     *
+     * @param array  $aIds       array of product ids
      * @param string $sExporType Type of export
-     * 
+     *
      * @return boolean True on success, false on fail
      */
-    public function markExportedItems($aIds = null, $sExportType = null)
+    public function markExportedItems($aIds = NULL, $sExportType = NULL)
     {
-        $blRet = false;
+        $blRet = FALSE;
 
-        switch ($sExportType)
-        {
+        switch ($sExportType) {
             case Az_Amz_Feed::TYPE_PRODUCT:
                 $blRet = $this->_markExportedProducts($aIds);
                 break;
@@ -1153,17 +1145,16 @@ class az_amz_snapshot extends oxList
 
     /**
      * Delete snapshot items by article numbers
-     * 
+     *
      * @param array $aArtSKUs Array of article numbers
-     * 
-     * @return boolean 
+     *
+     * @return boolean
      */
     public function deleteItemsByArtNum($aArtSKUs)
     {
         $oDB = oxDb::getDb();
 
-        if ($aArtSKUs && sizeof($aArtSKUs) > 0)
-        {
+        if($aArtSKUs && sizeof($aArtSKUs) > 0) {
             $sQ = " DELETE
 						FROM az_amz_snapshots
 						WHERE az_amz_snapshots.az_destinationid = '{$this->_sDestinationId}'
@@ -1172,10 +1163,10 @@ class az_amz_snapshot extends oxList
 
             $oDB->Execute($sQ);
 
-            return true;
+            return TRUE;
         }
 
-        return false;
+        return FALSE;
     }
 
 }
