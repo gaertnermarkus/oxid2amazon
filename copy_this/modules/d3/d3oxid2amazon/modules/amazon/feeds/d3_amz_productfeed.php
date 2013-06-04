@@ -2,16 +2,12 @@
 
 /**
  *  D3 MG 2012-04-04
- * 
  *  -Portaltexte
  *  -Farbe - OL_Color
  *  -Material - OL_Material
- * 
- *  D3 MG 2012-04-18 
+ *  D3 MG 2012-04-18
  *  -Browsenodes
  *  -Searchterms
- * 
- * 
  *  az_amz_productfeed => d3oxid2amazon/feeds/d3_amz_productfeed
  */
 class d3_amz_productfeed extends d3_amz_productfeed_parent
@@ -44,7 +40,6 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
          */
         $sXml .= '<Product>' . $this->nl;
 
-
         /*
           if($this->azHasAnyVariant($product)) {
           $sSkuValue = "P".$sSkuValue;
@@ -52,9 +47,7 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
          */
         $sXml .= '<SKU>' . $sSkuValue . '</SKU>';
 
-
-        if (!$this->azHasAnyVariant($product))
-        {
+        if(!$this->azHasAnyVariant($product)) {
             #$sEanField = 'oxarticles__' . $amzConfig->sEanField;
             #$sXml .= '<StandardProductID>' . $this->nl;
             #$sXml .= '<Type>EAN</Type>' . $this->nl;
@@ -100,8 +93,6 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
           $sXml .= '</Condition>' . $this->nl;
          */
 
-
-
         // Rebate (RebateStartDate, RebateEndDate, RebateMessage, RebateName)
         // ItemPackageQuantity
         // NumberOfItems
@@ -125,21 +116,17 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
         // DescriptionData -> Brand
         #if (isset($amzConfig->sBrandField))
         # {
-        if ($amzConfig->sBrandField == 'oxvendorid' && ($oVendor = $product->getVendor()))
-        {
+        if($amzConfig->sBrandField == 'oxvendorid' && ($oVendor = $product->getVendor())) {
             $brand = $oVendor->oxvendor__oxtitle->value;
         }
-        elseif ($amzConfig->sBrandField == 'oxmanufacturerid' && ($oManufacturer = $product->getManufacturer()))
-        {
+        elseif($amzConfig->sBrandField == 'oxmanufacturerid' && ($oManufacturer = $product->getManufacturer())) {
             $brand = $oManufacturer->oxmanufacturers__oxtitle->value;
         }
-        else
-        {
+        else {
             $brand = 'OUTFLEXX';
         }
         $sXml .= $this->_getXmlIfExists('Brand', $brand) . $this->nl;
         #}
-
 
         // DescriptionData -> Designer
         // DescriptionData -> Description
@@ -150,8 +137,7 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
         $description = $product->oxarticles__ahtportaltext->rawValue;
         #$description = $product->oxarticles__AHTPORTALTEXT->rawValue;
 
-        if (strlen($description) == 0)
-        {
+        if(strlen($description) == 0) {
             $description = $product->oxarticles__oxshortdesc->value;
         }
 
@@ -181,26 +167,35 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
         $sXml .= $this->_getXmlIfExists('BulletPoint', $product->oxarticles__d3amazonbulletpoint3->value) . $this->nl;
         $sXml .= $this->_getXmlIfExists('BulletPoint', $product->oxarticles__d3amazonbulletpoint4->value) . $this->nl;
         $sXml .= $this->_getXmlIfExists('BulletPoint', $product->oxarticles__d3amazonbulletpoint5->value) . $this->nl;
-    
-        
 
         // DescriptionData -> ItemDimensions (Length, Width, Height, Weight)
-        if ($product->oxarticles__oxweight->value > 0
-                || $product->oxarticles__oxlength->value > 0
-                || $product->oxarticles__oxheight->value > 0
-                || $product->oxarticles__oxwidth->value > 0
-        )
-        {
+        if($product->oxarticles__oxweight->value > 0 || $product->oxarticles__oxlength->value > 0 || $product->oxarticles__oxheight->value > 0 || $product->oxarticles__oxwidth->value > 0
+        ) {
             $sXml .= '<ItemDimensions>' . $this->nl;
 
-            if ($product->oxarticles__oxlength->value > 0)
-                $sXml .= $this->_getXmlIfExists('Length', round($product->oxarticles__oxlength->value, 2), array('unitOfMeasure' => 'M')) . $this->nl;
+            if($product->oxarticles__oxlength->value > 0) {
+                $sXml .= $this->_getXmlIfExists(
+                        'Length',
+                        round($product->oxarticles__oxlength->value, 2),
+                        array('unitOfMeasure' => 'M')
+                    ) . $this->nl;
+            }
 
-            if ($product->oxarticles__oxlength->value > 0)
-                $sXml .= $this->_getXmlIfExists('Width', round($product->oxarticles__oxwidth->value, 2), array('unitOfMeasure' => 'M')) . $this->nl;
+            if($product->oxarticles__oxlength->value > 0) {
+                $sXml .= $this->_getXmlIfExists(
+                        'Width',
+                        round($product->oxarticles__oxwidth->value, 2),
+                        array('unitOfMeasure' => 'M')
+                    ) . $this->nl;
+            }
 
-            if ($product->oxarticles__oxheight->value > 0)
-                $sXml .= $this->_getXmlIfExists('Height', round($product->oxarticles__oxheight->value, 2), array('unitOfMeasure' => 'M')) . $this->nl;
+            if($product->oxarticles__oxheight->value > 0) {
+                $sXml .= $this->_getXmlIfExists(
+                        'Height',
+                        round($product->oxarticles__oxheight->value, 2),
+                        array('unitOfMeasure' => 'M')
+                    ) . $this->nl;
+            }
 
             $sXml .= '</ItemDimensions>' . $this->nl;
         }
@@ -210,22 +205,25 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
         // DescriptionData -> <ShippingWeight unitOfMeasure="{GR|KG|OZ|LB}"></PackageWeight>
         // DescriptionData -> MerchantCatalogNumber
         // DescriptionData -> <MSRP currency="{USD|GBP|EUR|JPY|CAD}"></MSRP>
-        if (isset($product->oxarticles__oxtprice->value) && $product->oxarticles__oxtprice->value > 0)
-        {
-            $aCur = oxConfig::getInstance()->getCurrencyArray($this->getDestination()->az_amz_destinations__az_currency->value);
-            foreach ($aCur as $oCur)
-            {
-                if ($oCur->selected == 1)
-                {
+        if(isset($product->oxarticles__oxtprice->value) && $product->oxarticles__oxtprice->value > 0) {
+            $aCur = oxConfig::getInstance()->getCurrencyArray(
+                $this->getDestination()->az_amz_destinations__az_currency->value
+            );
+            foreach ($aCur as $oCur) {
+                if($oCur->selected == 1) {
                     break;
                 }
             }
-            $sXml .= $this->_getXmlIfExists('MSRP', number_format($product->oxarticles__oxtprice->value * $oCur->rate, 2, '.', ''), array('currency' => $oCur->name)) . $this->nl;
+            $sXml .= $this->_getXmlIfExists(
+                    'MSRP',
+                    number_format($product->oxarticles__oxtprice->value * $oCur->rate, 2, '.', ''),
+                    array('currency' => $oCur->name)
+                ) . $this->nl;
         }
 
-//        if(isset($product->oxarticles__oxtprice->value) && ) {
-//            
-//        }
+        //        if(isset($product->oxarticles__oxtprice->value) && ) {
+        //
+        //        }
         // DescriptionData -> MaxOrderQuantity 
         // DescriptionData -> SerialNumberRequired 
         // DescriptionData -> Prop65
@@ -233,23 +231,19 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
         // DescriptionData -> CPSIAWarningDescription
         // DescriptionData -> LegalDisclaimer
 
-
         // DescriptionData -> Manufacturer
-        if ($amzConfig->sManufacturerField == 'oxvendorid' && ($oVendor = $product->getVendor()))
-        {
+        if($amzConfig->sManufacturerField == 'oxvendorid' && ($oVendor = $product->getVendor())) {
             $manufacturer = $oVendor->oxvendor__oxtitle->value;
         }
-        elseif ($amzConfig->sManufacturerField == 'oxmanufacturerid' && ($oManufacturer = $product->getManufacturer()))
-        {
+        elseif($amzConfig->sManufacturerField == 'oxmanufacturerid' && ($oManufacturer = $product->getManufacturer())) {
             $manufacturer = $oManufacturer->oxmanufacturers__oxtitle->value;
         }
-        else
-        {
-            $manufacturer = 'OUTFLEXX'; 
+        else {
+            $manufacturer = 'MyManufacturer';
         }
         //$sXml .= $this->_getXmlIfExists('Brand', $manufacturer).$this->nl;
-        $sXml .= $this->_getXmlIfExists('Manufacturer', $manufacturer) . $this->nl;           
-        
+        $sXml .= $this->_getXmlIfExists('Manufacturer', $manufacturer) . $this->nl;
+
         //SearchTerms1
         // DescriptionData -> SearchTerms maxOccurs="5"
         /*
@@ -259,7 +253,7 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
           $sXml .= $this->_getXmlIfExists('SearchTerms', $searchKeys[$i]) . $this->nl;
           }
          */
-        
+
         $sXml .= $this->_getSearchTerms($product);
 
         // BrowseNodes - at the moment not implemented, therefore dummy-function which can be overloaded by module
@@ -302,7 +296,7 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
         $sXml = '<ProductData>' . $this->nl;
         $sXml .= '<Home>' . $this->nl;
         $sXml .= '<ProductType>' . $this->nl;
-        $sXml .= '<OutdoorLiving>' . $this->nl;        //Farbe
+        $sXml .= '<OutdoorLiving>' . $this->nl; //Farbe
         $sXml .= $this->_getXmlIfExists('Material', $product->oxarticles__ahtmaterial->value) . $this->nl;
         $sXml .= '<VariationData>' . $this->nl;
         $sXml .= $this->_getXmlIfExists('Color', $product->oxarticles__ahtfarbe->value) . $this->nl;
@@ -325,27 +319,27 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
     protected function _getBrowseNodes($oArticle)
     {
         $aBrowsNodes = $this->_searchAmazonCategories4Article($oArticle);
-        $sRet = "";
-        $iCounter = 1;
+        $sRet        = "";
+        $iCounter    = 1;
 
-        foreach ($aBrowsNodes as $aBrowseNode)
-        {
+        foreach ($aBrowsNodes as $aBrowseNode) {
             #$sRet.= $this->_getXmlIfExists('RecommendedBrowseNode'.$iCounter, $product->oxarticles__amazon_browsenode1->value) . $this->nl;
             #$sRet.= $this->_getXmlIfExists('RecommendedBrowseNode' . $iCounter, $aBrowseNode['D3AMAZONCATID']) . $this->nl;
-            $sRet.= $this->_getXmlIfExists('RecommendedBrowseNode', $aBrowseNode['D3AMAZONCATID']) . $this->nl;
+            $sRet .= $this->_getXmlIfExists('RecommendedBrowseNode', $aBrowseNode['D3AMAZONCATID']) . $this->nl;
             $iCounter++;
         }
 
-        if ($sRet == "")
-            $sRet.= $this->_getXmlIfExists('RecommendedBrowseNode', "11048231") . $this->nl;
+        if($sRet == "") {
+            $sRet .= $this->_getXmlIfExists('RecommendedBrowseNode', "11048231") . $this->nl;
+        }
 
         return $sRet;
     }
 
     /**
-     *
      * @param object $oArticle
-     * @return array 
+     *
+     * @return array
      */
     protected function _searchAmazonCategories4Article($oArticle)
     {
@@ -356,60 +350,23 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
 
     /**
      * Gibt die Suchbegriffe als Searchterms zurueck
+     *
      * @param object $product
-     * @return string 
+     *
+     * @return string
      */
     protected function _getSearchTerms($product)
     {
         $aSearchTerms = $product->d3GetSearchTermsForAmazon();
-        $sRet = "";
-        $iCounter = 1;
-        foreach ($aSearchTerms as $aSearchTerm)
-        {
+        $sRet         = "";
+        $iCounter     = 1;
+        foreach ($aSearchTerms as $aSearchTerm) {
             #$sRet.= $this->_getXmlIfExists('RecommendedBrowseNode'.$iCounter, $product->oxarticles__amazon_browsenode1->value) . $this->nl;
             #$sRet.= $this->_getXmlIfExists('SearchTerms' . $iCounter, $aSearchTerm['SearchTerm']) . $this->nl;
-            $sRet.= $this->_getXmlIfExists('SearchTerms', $aSearchTerm['SearchTerm']) . $this->nl;
+            $sRet .= $this->_getXmlIfExists('SearchTerms', $aSearchTerm['SearchTerm']) . $this->nl;
             $iCounter++;
         }
         return $sRet;
-    }
-
-    /**
-     * @param $xml
-     *
-     * @return string
-     */
-    protected function _escapeXmlValue($xml)
-    {
-        return htmlspecialchars($xml, ENT_NOQUOTES);
-        #return htmlspecialchars_decode($xml, ENT_NOQUOTES);
-        #return html_entity_decode ($xml);
-        #return $xml;
-    }
-
-    /**
-     * @param       $tagName
-     * @param       $value
-     * @param array $attributes
-     *
-     * @return string
-     */
-    protected function _getXmlIfExistsRaw($tagName, $value, $attributes = array())
-    {
-        if (isset($value) && strlen($value) > 0)
-        {
-            $sXml = '<' . $tagName;
-            if (count($attributes))
-            {
-                foreach ($attributes as $attrName => $attrValue)
-                {
-                    $sXml .= ' ' . $attrName . ' ="' . $this->_escapeXmlAttributeValue($attrValue) . '"';
-                }
-            }
-            $sXml .= '>' . $this->_escapeXmlValue($value) . '</' . $tagName . '>';
-            return $sXml;
-        }
-        return '';
     }
 
 }

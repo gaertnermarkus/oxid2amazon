@@ -1,6 +1,5 @@
-
 [{if $order->oxorder__amzorderid->value != ""}]
     [{oxcontent ident="oxadminorderemail_amazon"}]
-[{/if}]
+    [{/if}]
 
 [{$smarty.block.parent}]

@@ -8,30 +8,30 @@ $sMetadataVersion = '1.0';
  * Module information
  */
 $aModule = array(
-    'id'           => 'oxid2amazon',
-    'title'        => 'oxid2amazon',
-    'description'  => array(
+    'id'          => 'oxid2amazon',
+    'title'       => 'oxid2amazon',
+    'description' => array(
         'de' => 'oxid2amazon".',
     ),
-    'thumbnail'    => 'logo.jpg',
-    'version'      => '1.0.0',
-    'author'       => 'Anzido / d3',
-    'url'          => '',
-    'email'        => '',
-    'extend'       => array(
-        #'order'        => 'anzido/oxid2amazon/views/oepaypalorder',
+    'thumbnail'   => 'logo.jpg',
+    'version'     => '1.0.0',
+    'author'      => 'Anzido / d3',
+    'url'         => '',
+    'email'       => '',
+    'extend'      => array( #'order'        => 'anzido/oxid2amazon/views/oepaypalorder',
+        'oxemail' => 'anzido/d3oxid2amazon/modules/core/az_oxemail_amazon',
     ),
-    'files' => array(
-        'az_amz_config'                     => 'anzido/oxid2amazon/core/az_amz_config.php',
-        'az_amz_destination'                => 'anzido/oxid2amazon/core/az_amz_destination.php',
-        'az_amz_feed'                       => 'anzido/oxid2amazon/core/az_amz_feed.php',
-        'az_amz_ftp'                        => 'anzido/oxid2amazon/core/az_amz_ftp.php',
-        'az_amz_history'                    => 'anzido/oxid2amazon/core/az_amz_history.php',
-        'az_amz_orders'                     => 'anzido/oxid2amazon/core/az_amz_orders.php',
-        'az_amz_snapshot'                   => 'anzido/oxid2amazon/core/az_amz_snapshot.php',
-        'az_amz_snapshotitem'               => 'anzido/oxid2amazon/core/az_amz_snapshotitem.php',
-        'az_amz_theme'                      => 'anzido/oxid2amazon/core/az_amz_theme.php',
-        
+    'files'       => array(
+        'az_amz_config'                    => 'anzido/oxid2amazon/core/az_amz_config.php',
+        'az_amz_destination'               => 'anzido/oxid2amazon/core/az_amz_destination.php',
+        'az_amz_feed'                      => 'anzido/oxid2amazon/core/az_amz_feed.php',
+        'az_amz_ftp'                       => 'anzido/oxid2amazon/core/az_amz_ftp.php',
+        'az_amz_history'                   => 'anzido/oxid2amazon/core/az_amz_history.php',
+        'az_amz_orders'                    => 'anzido/oxid2amazon/core/az_amz_orders.php',
+        'az_amz_snapshot'                  => 'anzido/oxid2amazon/core/az_amz_snapshot.php',
+        'az_amz_snapshotitem'              => 'anzido/oxid2amazon/core/az_amz_snapshotitem.php',
+        'az_amz_theme'                     => 'anzido/oxid2amazon/core/az_amz_theme.php',
+        'az_amz_categories'                => 'anzido/oxid2amazon/core/az_amz_categories.php',
         'az_amz_category_theme'            => 'anzido/oxid2amazon/admin/az_amz_category_theme.php',
         'az_amz_destinations'              => 'anzido/oxid2amazon/admin/az_amz_destinations.php',
         'az_amz_destinations_history'      => 'anzido/oxid2amazon/admin/az_amz_destinations_history.php',
@@ -42,9 +42,7 @@ $aModule = array(
         'az_amz_settings_categories'       => 'anzido/oxid2amazon/admin/az_amz_settings_categories.php',
         'az_amz_settings_list'             => 'anzido/oxid2amazon/admin/az_amz_settings_list.php',
         'az_amz_settings_main'             => 'anzido/oxid2amazon/admin/az_amz_settings_main.php',
-		
         'az_amz_cron'                      => 'anzido/oxid2amazon/views/az_amz_cron.php',
-		
         'amz_autoaccessory_theme'          => 'anzido/oxid2amazon/amazon/themes/amz_autoaccessory_theme.php',
         'amz_beauty_theme'                 => 'anzido/oxid2amazon/amazon/themes/amz_beauty_theme.php',
         'amz_cameraphoto_theme'            => 'anzido/oxid2amazon/amazon/themes/amz_cameraphoto_theme.php',
@@ -65,7 +63,6 @@ $aModule = array(
         'amz_tools_theme'                  => 'anzido/oxid2amazon/amazon/themes/amz_tools_theme.php',
         'amz_toysbaby_theme'               => 'anzido/oxid2amazon/amazon/themes/amz_toysbaby_theme.php',
         'amz_wireless_theme'               => 'anzido/oxid2amazon/amazon/themes/amz_wireless_theme.php',
-		
         'az_amz_inventoryfeed'             => 'anzido/oxid2amazon/amazon/feeds/az_amz_inventoryfeed.php',
         'az_amz_pricefeed'                 => 'anzido/oxid2amazon/amazon/feeds/az_amz_pricefeed.php',
         'az_amz_productfeed'               => 'anzido/oxid2amazon/amazon/feeds/az_amz_productfeed.php',
@@ -74,8 +71,17 @@ $aModule = array(
         'az_amz_removeallfeed'             => 'anzido/oxid2amazon/amazon/feeds/az_amz_removeallfeed.php',
         'az_amz_shippingfeed'              => 'anzido/oxid2amazon/amazon/feeds/az_amz_shippingfeed.php',
     ),
-    'blocks' => array(
+    'blocks'      => array(
+        array(
+            'template' => 'email/html/order_owner.tpl',
+            'block'    => 'email_html_order_owner_orderemail',
+            'file'     => 'out/blocks/oxadminorderemail_amazon_html.tpl'
+        ),
+        array(
+            'template' => 'email/plain/order_owner.tpl',
+            'block'    => 'email_plain_order_owner_orderemail',
+            'file'     => 'out/blocks/oxadminorderemail_amazon_plain.tpl'
+        ),
     ),
-   'settings' => array(
-    )
+    'settings'    => array()
 );

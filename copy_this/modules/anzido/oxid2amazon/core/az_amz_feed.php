@@ -10,110 +10,126 @@
  * $feed->setDryRun(true); // optional in this case calling process twice would produce files with same content
  * $feed->process();
  * </code>
- * 
- *
+
+
  */
 abstract class az_amz_feed
 {
 
     const TYPE_INVENTORY = 'inventoryfeed';
+
     const TYPE_PRICE = 'pricefeed';
+
     const TYPE_PRODUCT = 'productfeed';
+
     const TYPE_PRODUCT_IMAGES = 'productimagesfeed';
+
     const TYPE_SHIPPING = 'shippingfeed';
+
     const TYPE_REMOVE_ALL = 'removeallfeed';
+
     const TYPE_RELATION = 'relationshipfeed';
 
     /**
      * new line character for xml files
+     *
      * @var string
      */
     public $nl = "\n";
 
     /**
      * Destination id
+     *
      * @var string
      */
     protected $_destinationId;
 
     /**
      * Xml MessageType
+     *
      * @var unknown_type
      */
     protected $_messageType = '';
 
     /**
-     * 
-     * @var Az_Amz_Destination 
+     * @var Az_Amz_Destination
      */
     protected $_destination;
 
     /**
      * xml file name
+     *
      * @var string
      */
-    protected $_fileName = null;
+    protected $_fileName = NULL;
 
     /**
      * File handle of the export
-     *  
+     *
      * @var resource
      */
     protected $_fileHandle;
 
     /**
      * Directory where the export file is temporary kept before upload to AMTU server
+     *
      * @var string
      */
     protected $_temporaryDir;
 
     /**
      * Feed name
-     * 
+     *
      * @var string
      */
     protected $_sFeedName = 'Feed';
 
     /**
      * Message counter of the export
+     *
      * @var int
      */
     protected $_messageId = 0;
 
     /**
      * shows if this feed is run in dry run (no changes in database will be done)
-     * 
+     *
      * @var bool
      */
-    protected $_dryRun = false;
+    protected $_dryRun = FALSE;
 
     /**
      * Config object
+     *
      * @var az_amz_Config
      */
-    protected $_az_amz_config = null;
+    protected $_az_amz_config = NULL;
 
     /**
      * date for filename
+     *
      * @var $_sFileDate
      */
-    protected $_sFileDate = null;
+    protected $_sFileDate = NULL;
 
     /**
      * File name base
+     *
      * @var $_sFileNameBase
      */
     protected $_sFileNameBase = 'unknown';
-    protected $_sSkuField = null;
-    protected $_sSkuProperty = null;
+
+    protected $_sSkuField = NULL;
+
+    protected $_sSkuProperty = NULL;
 
     /**
-     * 
      * @param string $sFeedType
-     * @param string $sDestinationId 
+     * @param string $sDestinationId
+     *
      * @return Az_Amz_Feed
      */
-    public static function create($sFeedType, $sDestinationId, $blDryRun = false)
+    public static function create($sFeedType, $sDestinationId, $blDryRun = FALSE)
     {
         $sFeedType = strtr($sFeedType, array('/' => '', '\\' => ''));
         // TODO: path to module has to be dynamic, put in config
@@ -127,8 +143,10 @@ abstract class az_amz_feed
 
     /**
      * Set directory, where the compiled xml will be stored until it will
-     * be uploaded to AMTU server 
+     * be uploaded to AMTU server
+     *
      * @param $sDir directory
+     *
      * @return null
      */
     public function setTemporaryExportDir($sDir)
@@ -138,11 +156,11 @@ abstract class az_amz_feed
 
     /**
      * Call this function before calling "self::process" function
-     * if you want to generate a demo export 
-     * 
+     * if you want to generate a demo export
+     *
      * @param boolean $dryRun (optional, default=true) set dry run
      */
-    public function setDryRun($dryRun = true)
+    public function setDryRun($dryRun = TRUE)
     {
         $this->_dryRun = $dryRun;
     }
@@ -153,17 +171,16 @@ abstract class az_amz_feed
     }
 
     /**
-     * returns directory where export file is kept 
+     * returns directory where export file is kept
      * before it is uploaded to amtu server
-     * If this directory is not set implicitly by setTemporaryExportDir it defaults to 
+     * If this directory is not set implicitly by setTemporaryExportDir it defaults to
      * /export dir in shop root
-     * 
+     *
      * @return string
      */
     public function getTemporaryExportDir()
     {
-        if (!isset($this->_temporaryDir))
-        {
+        if(!isset($this->_temporaryDir)) {
             $sExportDir = oxConfig::getInstance()->getConfigParam('sShopDir');
             #$sExportDir = rtrim($sExportDir, '/\\') . '/' . 'export';
             #$sExportDir = rtrim($sExportDir, '/\\') . '/' . 'modules/oxid2amazon/export';
@@ -176,27 +193,26 @@ abstract class az_amz_feed
 
     /**
      * Set destination id
+     *
      * @param $id string
+     *
      * @return null
      */
     public function setDestinationId($id)
     {
         $this->_destinationId = $id;
-        if (isset($this->_destination) && $this->_destination->getId() != $id)
-        {
+        if(isset($this->_destination) && $this->_destination->getId() != $id) {
             unset($this->_destination);
         }
     }
 
     /**
-     * 
      * @return string
      * @throws Exception if destination id is not set
      */
     public function getDestinationId()
     {
-        if (!isset($this->_destinationId))
-        {
+        if(!isset($this->_destinationId)) {
             throw new Exception('destination id not set in az_amz_feed');
         }
         return $this->_destinationId;
@@ -204,12 +220,12 @@ abstract class az_amz_feed
 
     /**
      * Load destination object
+     *
      * @return az_amz_Destination
      */
     public function getDestination()
     {
-        if (!isset($this->_destination))
-        {
+        if(!isset($this->_destination)) {
             $this->_destination = oxNew('az_amz_destination');
             $this->_destination->load($this->getDestinationId());
         }
@@ -218,13 +234,13 @@ abstract class az_amz_feed
 
     /**
      * Returns config object
+     *
      * @return unknown_type
      */
     protected function _getAmzConfig()
     {
-        if (!isset($this->_az_amz_config))
-        {
-            $dest = $this->getDestination();
+        if(!isset($this->_az_amz_config)) {
+            $dest                 = $this->getDestination();
             $this->_az_amz_config = oxNew('az_amz_config', $dest->az_amz_destinations__oxshopid->value);
         }
         return $this->_az_amz_config;
@@ -233,8 +249,9 @@ abstract class az_amz_feed
     public function getSkuField()
     {
         $this->_sSkuField = $this->_getAmzConfig()->sSkuField;
-        if (!$this->_sSkuField)
+        if(!$this->_sSkuField) {
             $this->_sSkuField = "oxartnum";
+        }
         return $this->_sSkuField;
     }
 
@@ -246,22 +263,20 @@ abstract class az_amz_feed
 
     public function setFileName($fileName)
     {
-        if (is_resource($this->_fileHandle))
-        {
+        if(is_resource($this->_fileHandle)) {
             throw new Exception('This feed already has an open file');
         }
         $this->_fileName = $fileName;
     }
 
     /**
-     * 
      * @param int $iFileNumber file number of this feed
+     *
      * @return unknown_type
      */
     public function getFileName($iFileNumber = 0)
     {
-        if (!isset($this->_fileName))
-        {
+        if(!isset($this->_fileName)) {
             // generate file name			
 
             $this->setFileName($this->generateFileName($iFileNumber));
@@ -273,7 +288,7 @@ abstract class az_amz_feed
     /**
      * Generate file name for current feed, is called when
      * File name is not set implicitly
-     * 
+     *
      * @return string generated file name
      */
     public function generateFileName($fileIndex = 0)
@@ -289,61 +304,52 @@ abstract class az_amz_feed
 
         $aIds = $this->getChangedProductIds();
 
-        $aArtSKUs = $this->getDeletedProductArtNums();
+        $aArtSKUs       = $this->getDeletedProductArtNums();
         $iTotalProducts = sizeof($aIds) + sizeof($aArtSKUs);
-        if ($iTotalProducts > 0)
-        {
-            $sizeLimit = 10485760 - 100; // 100 byte buffer for closing envelope should be enough and 
-            $fileIndex = 0;
-            $bytesWritten = $this->startFile(false, $fileIndex++);
+        if($iTotalProducts > 0) {
+            $sizeLimit    = 10485760 - 100; // 100 byte buffer for closing envelope should be enough and
+            $fileIndex    = 0;
+            $bytesWritten = $this->startFile(FALSE, $fileIndex++);
 
-            foreach ($aIds as $id)
-            {
+            foreach ($aIds as $id) {
                 $sUpdateXml = $this->getUpdateXml($id);
-                if (strlen($sUpdateXml) + $bytesWritten > $sizeLimit)
-                {
+                if(strlen($sUpdateXml) + $bytesWritten > $sizeLimit) {
                     // close old file and open a new one, reset counter
                     $this->endFile();
-                    $bytesWritten = $this->startFile(false, $fileIndex++);
+                    $bytesWritten = $this->startFile(FALSE, $fileIndex++);
                 }
                 $bytesWritten += $this->write($sUpdateXml);
             }
 
-
-
-            if (!$dryRun)
-            {
+            if(!$dryRun) {
                 $this->updateItems($aIds);
                 // History message      
-                $sHistoryMsg = "Generated " . $this->getFeedName() . " (" . $this->getFileName() . "). " . sizeof($aIds) . " product(-s) will be updated/added ";
+                $sHistoryMsg = "Generated " . $this->getFeedName() . " (" . $this->getFileName() . "). " . sizeof(
+                        $aIds
+                    ) . " product(-s) will be updated/added ";
             }
 
             unset($aIds);
 
-            foreach ($aArtSKUs as $id)
-            {
+            foreach ($aArtSKUs as $id) {
                 $sDeleteXml = $this->getDeleteXml($id);
-                if (strlen($sDeleteXml) + $bytesWritten > $sizeLimit)
-                {
+                if(strlen($sDeleteXml) + $bytesWritten > $sizeLimit) {
                     $this->endFile();
-                    $bytesWritten = $this->startFile(false, $fileIndex++);
+                    $bytesWritten = $this->startFile(FALSE, $fileIndex++);
                 }
                 $bytesWritten += $this->write($sDeleteXml);
             }
             $this->endFile();
 
-            if (!$dryRun)
-            {
+            if(!$dryRun) {
                 $this->deleteItemsByArtNum($aArtSKUs);
 
-                if ($this->getFeedAction() == az_amz_history::ACTION_EXPORT_PRODUCTS)
-                {
+                if($this->getFeedAction() == az_amz_history::ACTION_EXPORT_PRODUCTS) {
                     $sHistoryMsg .= "and " . sizeof($aIds) . " will be removed. ";
                 }
             }
         }
-        else
-        {
+        else {
             $sHistoryMsg = $this->getFeedName() . " file was not generated, because no products were found!";
         }
 
@@ -354,33 +360,38 @@ abstract class az_amz_feed
     }
 
     /**
-     * 
-     * @param boolean $overwrite if the file with same name exists write on top
-     * @param int $fileNumber file number of this feed (when the feed is split because of size restrictions)
+     * @param boolean $overwrite  if the file with same name exists write on top
+     * @param int     $fileNumber file number of this feed (when the feed is split because of size restrictions)
+     *
      * @return int|boolean bytes written to file
      * @throws Exception with error code -2999
      */
-    public function startFile($overwrite = false, $fileNumber = 0)
+    public function startFile($overwrite = FALSE, $fileNumber = 0)
     {
         $oDestination = $this->getDestination();
-        $fileName = $this->getTemporaryExportDir() . DIRECTORY_SEPARATOR . $this->getFileName($fileNumber);
-        if (!$overwrite && file_exists($fileName))
-        {
+        $fileName     = $this->getTemporaryExportDir() . DIRECTORY_SEPARATOR . $this->getFileName($fileNumber);
+        if(!$overwrite && file_exists($fileName)) {
             throw new Exception('file with this name already exists', -2999);
         }
         $this->_fileHandle = fopen($fileName, 'wb');
         //TODO find out about encoding, in case of UTF8 write BOM if needed
 
         $size = $this->write('<?xml version="1.0" encoding="UTF-8"?>' . $this->nl);
-        $size += $this->write('<AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">' . $this->nl);
-        $size += $this->write('<Header><DocumentVersion>1.01</DocumentVersion><MerchantIdentifier>' . $oDestination->az_amz_destinations__az_amz_merchantid->value . '</MerchantIdentifier></Header>' . $this->nl);
+        $size += $this->write(
+            '<AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">' . $this->nl
+        );
+        $size += $this->write(
+            '<Header><DocumentVersion>1.01</DocumentVersion><MerchantIdentifier>' . $oDestination->az_amz_destinations__az_amz_merchantid->value . '</MerchantIdentifier></Header>' . $this->nl
+        );
         $size += $this->write('<MessageType>' . $this->_messageType . '</MessageType>' . $this->nl);
         return $size;
     }
 
     /**
      * Writes the message to file (encodes to the file encoding if needed)
+     *
      * @param string $message
+     *
      * @return int bytes written
      */
     public function write($message)
@@ -391,6 +402,7 @@ abstract class az_amz_feed
 
     /**
      * Closes AmazonEnvelope and the output file
+     *
      * @return void
      */
     public function endFile()
@@ -401,10 +413,12 @@ abstract class az_amz_feed
 
     /**
      * Returns ids of products that were changed and are subject of this feed
+     *
      * @return array of ids
      */
     public function getChangedProductIds()
     {
+        /** @var az_amz_snapshot $oSnapshot */
         $oSnapshot = oxNew('az_amz_snapshot');
         $oSnapshot->setDestination($this->getDestination());
         $aIds = $oSnapshot->getChangedProductIds($this->_sAction);
@@ -414,27 +428,28 @@ abstract class az_amz_feed
 
     /**
      * Updates items, recalculates their hashes
-     * 
+     *
      * @param array $aIds Array of product ids
-     * 
+     *
      * @return boolean
      */
-    public function updateItems($aIds = null)
+    public function updateItems($aIds = NULL)
     {
-        if ($aIds)
-        {
+        if($aIds) {
+            /** @var az_amz_snapshot $oSnapshot */
             $oSnapshot = oxNew('az_amz_snapshot');
             $oSnapshot->setDestination($this->getDestination());
             //$oSnapshot->markExportedItems($aIds, true, false, false);
             $oSnapshot->markExportedItems($aIds, $this->_sAction);
-            return true;
+            return TRUE;
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
      * Returns deleted product product numbers
+     *
      * @return array of article numbers
      */
     public function getDeletedProductArtNums()
@@ -444,19 +459,21 @@ abstract class az_amz_feed
 
     /**
      * Delete snapshot items by article numbers
-     * 
+     *
      * @param array $aArtSKUs Array of article SKUs
-     * 
-     * @return boolean 
+     *
+     * @return boolean
      */
     public function deleteItemsByArtNum($aArtSKUs)
     {
-        return false;
+        return FALSE;
     }
 
     /**
      * Return the message of the update operation to specified product id
+     *
      * @param string $id product id
+     *
      * @return string xml
      */
     public function getUpdateXml($id)
@@ -466,8 +483,9 @@ abstract class az_amz_feed
 
     /**
      * Return delete message xml
-     * 
+     *
      * @param string $id of the product
+     *
      * @return string xml
      */
     public function getDeleteXml($id)
@@ -478,21 +496,19 @@ abstract class az_amz_feed
     /**
      * If value is not empty, writes xml for tagName with value, and puts attributes
      * utility method
-     * 
+     *
      * @param string $tagName
      * @param string $value
-     * @param array $attributes 
+     * @param array  $attributes
+     *
      * @return string xml
      */
     protected function _getXmlIfExists($tagName, $value, $attributes = array())
     {
-        if (isset($value) && strlen($value) > 0)
-        {
+        if(isset($value) && strlen($value) > 0) {
             $sXml = '<' . $tagName;
-            if (count($attributes))
-            {
-                foreach ($attributes as $attrName => $attrValue)
-                {
+            if(count($attributes)) {
+                foreach ($attributes as $attrName => $attrValue) {
                     $sXml .= ' ' . $attrName . ' ="' . $this->_escapeXmlAttributeValue($attrValue) . '"';
                 }
             }
@@ -504,8 +520,9 @@ abstract class az_amz_feed
 
     /**
      * Utility method to escape xml value
-     * 
+     *
      * @param string $xml xml value
+     *
      * @return string escaped xml string
      */
     protected function _escapeXmlValue($xml)
@@ -515,8 +532,9 @@ abstract class az_amz_feed
 
     /**
      * Utility method to escape xml attribute value
-     * 
+     *
      * @param string $text
+     *
      * @return string
      */
     protected function _escapeXmlAttributeValue($text)
@@ -526,29 +544,31 @@ abstract class az_amz_feed
 
     /**
      * Returns oxarticle object
+     *
      * @param string $sProductId Product Id
-     * 
+     *
      * @return oxarticle
      */
     protected function _getProduct($sProductId)
     {
         $oDestination = $this->getDestination();
+        /** @var oxarticle $oProduct */
         $oProduct = oxNew('oxarticle');
-        $oProduct->setNoVariantLoading(true);
+        $oProduct->setNoVariantLoading(TRUE);
         $oProduct->setLanguage($oDestination->az_amz_destinations__az_language->value);
-        $sCur = oxConfig::getParameter('cur');
+        $sCur         = oxConfig::getParameter('cur');
         $_POST['cur'] = $oDestination->az_amz_destinations__az_currency->value;
-        $_GET['cur'] = $oDestination->az_amz_destinations__az_currency->value;
+        $_GET['cur']  = $oDestination->az_amz_destinations__az_currency->value;
         $oProduct->load($sProductId);
         $_POST['cur'] = $sCur;
-        $_GET['cur'] = $sCur;
+        $_GET['cur']  = $sCur;
 
         return $oProduct;
     }
 
     /**
      * Returns feed name
-     * 
+     *
      * @return string
      */
     public function getFeedName()
@@ -558,7 +578,7 @@ abstract class az_amz_feed
 
     /**
      * returns action name
-     * 
+     *
      * @return string
      */
     public function getFeedAction()
@@ -568,29 +588,33 @@ abstract class az_amz_feed
 
     /**
      * returns filename base
-     * 
+     *
      * @return string
      */
     public function getFileNameBase()
     {
         // one date for all splitted files
-        if (!$this->_sFileDate)
+        if(!$this->_sFileDate) {
             $this->_sFileDate = date('ymd_His');
+        }
 
         return $this->_sFileNameBase . '_' . $this->_sFileDate;
     }
 
-    public function azHasAnyVariant($oProduct, $blForceCoreTable = false)
+    public function azHasAnyVariant($oProduct, $blForceCoreTable = FALSE)
     {
         #$sArticleTable = $oProduct->getTableNameForActiveSnippet($blForceCoreTable);
         $sArticleTable = getViewName('oxarticles');
-        return (bool) oxDb::getDb()->getOne("select 1 from $sArticleTable where oxparentid='" . $oProduct->getId() . "'");
+        return (bool)oxDb::getDb()->getOne(
+            "select 1 from $sArticleTable where oxparentid='" . $oProduct->getId() . "'"
+        );
     }
 
     /**
      * prepareEanNumber
      *
      * @param string $sArtikelNr
+     *
      * @return string $sArtikelNrCut
      */
     public function prepareEanNumber($sArtikelNr)
@@ -603,12 +627,14 @@ abstract class az_amz_feed
      *
      * @return int
      */
-    function _GetD3Stock($iStock)  // $iStock berücksichtigt schon eine ggf. eingetragene Reserve
+    function _GetStock($iStock) // $iStock berücksichtigt schon eine ggf. eingetragene Reserve
     {
-        if ($iStock < 1)
+        if($iStock < 1) {
             return 0;
-        else
+        }
+        else {
             return $iStock;
+        }
     }
 
 }
