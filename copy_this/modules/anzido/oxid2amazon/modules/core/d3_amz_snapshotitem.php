@@ -1,13 +1,18 @@
 <?php
 
 /**
- * Weitere Felder fuer den kompletten Artikelupload - zum Test was geaendert wurde
+ * Weitere Felder fuer den kompletten Artikelupload
  * az_amz_snapshotitem =>d3oxid2amazon/core/d3_amz_snapshotitem
 
  */
 class d3_amz_snapshotitem extends d3_amz_snapshotitem_parent
 {
 
+    /**
+     * more fields in oxarticle
+     *
+     * @var array
+     */
     protected $_aD3HashProductFields = array(
         'd3amazonbulletpoint1',
         'd3amazonbulletpoint2',

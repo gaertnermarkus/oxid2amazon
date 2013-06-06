@@ -12,7 +12,6 @@
  */
 class d3_amz_productfeed extends d3_amz_productfeed_parent
 {
-
     /**
      * @param $id
      *
@@ -29,7 +28,7 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
         #$sXml .= '<OperationType>PartialUpdate</OperationType>' . $this->nl;
         $sXml .= '<OperationType>Update</OperationType>' . $this->nl;
 
-        $sSkuProp = $this->getSkuProperty();
+        $sSkuProp  = $this->getSkuProperty();
         $sSkuValue = $this->prepareEanNumber($product->$sSkuProp->value);
 
         /*
@@ -114,91 +113,16 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
         $sXml .= $this->_getXmlIfExists('Title', trim($product->oxarticles__oxtitle->value)) . $this->nl;
 
         // DescriptionData -> Brand
-        #if (isset($amzConfig->sBrandField))
-        # {
-        if($amzConfig->sBrandField == 'oxvendorid' && ($oVendor = $product->getVendor())) {
-            $brand = $oVendor->oxvendor__oxtitle->value;
-        }
-        elseif($amzConfig->sBrandField == 'oxmanufacturerid' && ($oManufacturer = $product->getManufacturer())) {
-            $brand = $oManufacturer->oxmanufacturers__oxtitle->value;
-        }
-        else {
-            $brand = 'OUTFLEXX';
-        }
-        $sXml .= $this->_getXmlIfExists('Brand', $brand) . $this->nl;
-        #}
+        $sXml .= $this->_getBrand($product);
 
         // DescriptionData -> Designer
         // DescriptionData -> Description
-        #$description = $this->_getXmlIfExists('Description', strip_tags($product->oxarticles__oxlongdesc->value));
-        //
-        //ahtportaltext
-        #$description = $product->getFieldData('AHTPORTALTEXT');
-        $description = $product->oxarticles__ahtportaltext->rawValue;
-        #$description = $product->oxarticles__AHTPORTALTEXT->rawValue;
+        $sXml .= $this->_getDescription($product);
 
-        if(strlen($description) == 0) {
-            $description = $product->oxarticles__oxshortdesc->value;
-        }
-
-        #$description = str_replace ('&reg;','&#xae;',$description);
-        #$description = str_replace('<br>', PHP_EOL, $description);
-        #$sXml .= $description . $this->nl;
-        #$sXml .= $this->_getXmlIfExists('Description', strip_tags($description)) . $this->nl;
-        $sXml .= $this->_getXmlIfExistsRaw('Description', $description) . $this->nl;
-
-        // DescriptionData -> BulletPoint (max 5)
-        /*
-         * D3 MG 2012-05-07
-          $aBuletPoints = explode(',', $product->oxarticles__oxshortdesc->value, 6);
-          if (isset($aBuletPoints[5]))
-          {
-          unset($aBuletPoints[5]);
-          }
-          foreach ($aBuletPoints as $buletPoint)
-          {
-          $sXml .= $this->_getXmlIfExists('BulletPoint', $buletPoint) . $this->nl;
-          }
-         */
-
-        // D3 MG 2012-05-07 ADD BulletPoint1
-        $sXml .= $this->_getXmlIfExists('BulletPoint', $product->oxarticles__d3amazonbulletpoint1->value) . $this->nl;
-        $sXml .= $this->_getXmlIfExists('BulletPoint', $product->oxarticles__d3amazonbulletpoint2->value) . $this->nl;
-        $sXml .= $this->_getXmlIfExists('BulletPoint', $product->oxarticles__d3amazonbulletpoint3->value) . $this->nl;
-        $sXml .= $this->_getXmlIfExists('BulletPoint', $product->oxarticles__d3amazonbulletpoint4->value) . $this->nl;
-        $sXml .= $this->_getXmlIfExists('BulletPoint', $product->oxarticles__d3amazonbulletpoint5->value) . $this->nl;
+        $sXml .= $this->_getBulletPoints($product);
 
         // DescriptionData -> ItemDimensions (Length, Width, Height, Weight)
-        if($product->oxarticles__oxweight->value > 0 || $product->oxarticles__oxlength->value > 0 || $product->oxarticles__oxheight->value > 0 || $product->oxarticles__oxwidth->value > 0
-        ) {
-            $sXml .= '<ItemDimensions>' . $this->nl;
-
-            if($product->oxarticles__oxlength->value > 0) {
-                $sXml .= $this->_getXmlIfExists(
-                        'Length',
-                        round($product->oxarticles__oxlength->value, 2),
-                        array('unitOfMeasure' => 'M')
-                    ) . $this->nl;
-            }
-
-            if($product->oxarticles__oxlength->value > 0) {
-                $sXml .= $this->_getXmlIfExists(
-                        'Width',
-                        round($product->oxarticles__oxwidth->value, 2),
-                        array('unitOfMeasure' => 'M')
-                    ) . $this->nl;
-            }
-
-            if($product->oxarticles__oxheight->value > 0) {
-                $sXml .= $this->_getXmlIfExists(
-                        'Height',
-                        round($product->oxarticles__oxheight->value, 2),
-                        array('unitOfMeasure' => 'M')
-                    ) . $this->nl;
-            }
-
-            $sXml .= '</ItemDimensions>' . $this->nl;
-        }
+        $sXml .= $this->_getItemDimensions($product);
 
         // DescriptionData -> PackageDimensions (Length, Width, Height)
         // DescriptionData -> <PackageWeight unitOfMeasure="{GR|KG|OZ|LB}"></PackageWeight>
@@ -232,28 +156,7 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
         // DescriptionData -> LegalDisclaimer
 
         // DescriptionData -> Manufacturer
-        if($amzConfig->sManufacturerField == 'oxvendorid' && ($oVendor = $product->getVendor())) {
-            $manufacturer = $oVendor->oxvendor__oxtitle->value;
-        }
-        elseif($amzConfig->sManufacturerField == 'oxmanufacturerid' && ($oManufacturer = $product->getManufacturer())) {
-            $manufacturer = $oManufacturer->oxmanufacturers__oxtitle->value;
-        }
-        else {
-            $manufacturer = 'MyManufacturer';
-        }
-        //$sXml .= $this->_getXmlIfExists('Brand', $manufacturer).$this->nl;
-        $sXml .= $this->_getXmlIfExists('Manufacturer', $manufacturer) . $this->nl;
-
-        //SearchTerms1
-        // DescriptionData -> SearchTerms maxOccurs="5"
-        /*
-          $searchKeys = explode(' ', $product->oxarticles__oxsearchkeys->value, 6);
-          for ($i = 0; $i < 5 && isset($searchKeys[$i]); ++$i)
-          {
-          $sXml .= $this->_getXmlIfExists('SearchTerms', $searchKeys[$i]) . $this->nl;
-          }
-         */
-
+        $sXml .= $this->_getManufacturer($product);
         $sXml .= $this->_getSearchTerms($product);
 
         // BrowseNodes - at the moment not implemented, therefore dummy-function which can be overloaded by module
@@ -312,6 +215,80 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
     }
 
     /**
+     * @param $product
+     *
+     * @return string
+     */
+    protected function _getBrand($product)
+    {
+        $sXml = '';
+        #if (isset($amzConfig->sBrandField))
+        # {
+        if($amzConfig->sBrandField == 'oxvendorid' && ($oVendor = $product->getVendor())) {
+            $brand = $oVendor->oxvendor__oxtitle->value;
+        }
+        elseif($amzConfig->sBrandField == 'oxmanufacturerid' && ($oManufacturer = $product->getManufacturer())) {
+            $brand = $oManufacturer->oxmanufacturers__oxtitle->value;
+        }
+        else {
+            $brand = 'MyBrand';
+        }
+        $sXml .= $this->_getXmlIfExists('Brand', $brand) . $this->nl;
+        #}
+        return $sXml;
+    }
+
+    /**
+     * @param $product
+     *
+     * @return string
+     */
+    protected function _getDescription($product)
+    {
+        $sXml        = '';
+        $description = $product->oxarticles__portaltext->rawValue;
+
+        if(strlen($description) == 0) {
+            $description = $product->oxarticles__oxshortdesc->value;
+        }
+
+        $sXml .= $this->_getXmlIfExistsRaw('Description', $description) . $this->nl;
+        return $sXml;
+    }
+
+    /**
+     * DescriptionData -> BulletPoint (max 5)
+     *
+     * @param $product
+     *
+     * @return string
+     */
+    protected function _getBulletPoints($product)
+    {
+        $sXml = '';
+        /*
+         * D3 MG 2012-05-07
+          $aBuletPoints = explode(',', $product->oxarticles__oxshortdesc->value, 6);
+          if (isset($aBuletPoints[5]))
+          {
+          unset($aBuletPoints[5]);
+          }
+          foreach ($aBuletPoints as $buletPoint)
+          {
+          $sXml .= $this->_getXmlIfExists('BulletPoint', $buletPoint) . $this->nl;
+          }
+         */
+
+        // D3 MG 2012-05-07 ADD BulletPoint1
+        $sXml .= $this->_getXmlIfExists('BulletPoint', $product->oxarticles__d3amazonbulletpoint1->value) . $this->nl;
+        $sXml .= $this->_getXmlIfExists('BulletPoint', $product->oxarticles__d3amazonbulletpoint2->value) . $this->nl;
+        $sXml .= $this->_getXmlIfExists('BulletPoint', $product->oxarticles__d3amazonbulletpoint3->value) . $this->nl;
+        $sXml .= $this->_getXmlIfExists('BulletPoint', $product->oxarticles__d3amazonbulletpoint4->value) . $this->nl;
+        $sXml .= $this->_getXmlIfExists('BulletPoint', $product->oxarticles__d3amazonbulletpoint5->value) . $this->nl;
+        return $sXml;
+    }
+
+    /**
      * @param object $product
      *
      * @return string
@@ -323,8 +300,6 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
         $iCounter    = 1;
 
         foreach ($aBrowsNodes as $aBrowseNode) {
-            #$sRet.= $this->_getXmlIfExists('RecommendedBrowseNode'.$iCounter, $product->oxarticles__amazon_browsenode1->value) . $this->nl;
-            #$sRet.= $this->_getXmlIfExists('RecommendedBrowseNode' . $iCounter, $aBrowseNode['D3AMAZONCATID']) . $this->nl;
             $sRet .= $this->_getXmlIfExists('RecommendedBrowseNode', $aBrowseNode['D3AMAZONCATID']) . $this->nl;
             $iCounter++;
         }
@@ -349,7 +324,72 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
     }
 
     /**
+     * @param $product
+     *
+     * @return string
+     */
+    protected function _getItemDimensions($product)
+    {
+        $sXml = '';
+        if($product->oxarticles__oxweight->value > 0 || $product->oxarticles__oxlength->value > 0 || $product->oxarticles__oxheight->value > 0 || $product->oxarticles__oxwidth->value > 0
+        ) {
+            $sXml .= '<ItemDimensions>' . $this->nl;
+
+            if($product->oxarticles__oxlength->value > 0) {
+                $sXml .= $this->_getXmlIfExists(
+                        'Length',
+                        round($product->oxarticles__oxlength->value, 2),
+                        array('unitOfMeasure' => 'M')
+                    ) . $this->nl;
+            }
+
+            if($product->oxarticles__oxlength->value > 0) {
+                $sXml .= $this->_getXmlIfExists(
+                        'Width',
+                        round($product->oxarticles__oxwidth->value, 2),
+                        array('unitOfMeasure' => 'M')
+                    ) . $this->nl;
+            }
+
+            if($product->oxarticles__oxheight->value > 0) {
+                $sXml .= $this->_getXmlIfExists(
+                        'Height',
+                        round($product->oxarticles__oxheight->value, 2),
+                        array('unitOfMeasure' => 'M')
+                    ) . $this->nl;
+            }
+
+            $sXml .= '</ItemDimensions>' . $this->nl;
+        }
+        return $sXml;
+    }
+
+    /**
+     * @param $product
+     *
+     * @return string
+     */
+    protected function _getManufacturer($product)
+    {
+        $sXml = '';
+        if($amzConfig->sManufacturerField == 'oxvendorid' && ($oVendor = $product->getVendor())) {
+            $manufacturer = $oVendor->oxvendor__oxtitle->value;
+        }
+        elseif($amzConfig->sManufacturerField == 'oxmanufacturerid' && ($oManufacturer = $product->getManufacturer())) {
+            $manufacturer = $oManufacturer->oxmanufacturers__oxtitle->value;
+        }
+        else {
+            $manufacturer = 'MyManufacturer';
+        }
+        //$sXml .= $this->_getXmlIfExists('Brand', $manufacturer).$this->nl;
+        $sXml .= $this->_getXmlIfExists('Manufacturer', $manufacturer) . $this->nl;
+        return $sXml;
+    }
+
+    /**
      * Gibt die Suchbegriffe als Searchterms zurueck
+     * SearchTerms1
+     * DescriptionData -> SearchTerms maxOccurs="5"
      *
      * @param object $product
      *
@@ -357,12 +397,18 @@ class d3_amz_productfeed extends d3_amz_productfeed_parent
      */
     protected function _getSearchTerms($product)
     {
+        /*
+          $searchKeys = explode(' ', $product->oxarticles__oxsearchkeys->value, 6);
+          for ($i = 0; $i < 5 && isset($searchKeys[$i]); ++$i)
+          {
+          $sXml .= $this->_getXmlIfExists('SearchTerms', $searchKeys[$i]) . $this->nl;
+          }
+         */
+
         $aSearchTerms = $product->d3GetSearchTermsForAmazon();
         $sRet         = "";
         $iCounter     = 1;
         foreach ($aSearchTerms as $aSearchTerm) {
-            #$sRet.= $this->_getXmlIfExists('RecommendedBrowseNode'.$iCounter, $product->oxarticles__amazon_browsenode1->value) . $this->nl;
-            #$sRet.= $this->_getXmlIfExists('SearchTerms' . $iCounter, $aSearchTerm['SearchTerm']) . $this->nl;
             $sRet .= $this->_getXmlIfExists('SearchTerms', $aSearchTerm['SearchTerm']) . $this->nl;
             $iCounter++;
         }

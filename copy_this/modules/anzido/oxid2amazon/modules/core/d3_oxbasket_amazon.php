@@ -2,10 +2,6 @@
 
 /**
  * oxbasket =>d3oxid2amazon/core/d3_oxbasket_amazon
- * D3 MG 2012-07-17
- * - Dreigaben entfernen / _addBundles(
- * - d3calculateBasket4Amazon umbenannt
-
  */
 class d3_oxbasket_amazon extends d3_oxbasket_amazon_parent
 {

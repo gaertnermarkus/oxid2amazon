@@ -19,7 +19,11 @@ $aModule = array(
     'url'         => '',
     'email'       => '',
     'extend'      => array( #'order'        => 'anzido/oxid2amazon/views/oepaypalorder',
-        'oxemail' => 'anzido/d3oxid2amazon/modules/core/az_oxemail_amazon',
+        'oxemail'             => 'anzido/modules/core/az_oxemail_amazon',
+        'oxorder'             => 'anzido/modules/core/d3_oxorder_save',
+        'oxbasket'            => 'anzido/modules/core/d3_oxbasket_amazon',
+        'oxarticle'           => 'anzido/modules/core/d3_oxarticle_amazoncategoies',
+        'az_amz_snapshotitem' => 'anzido/modules/core/d3_amz_snapshotitem',
     ),
     'files'       => array(
         'az_amz_config'                    => 'anzido/oxid2amazon/core/az_amz_config.php',

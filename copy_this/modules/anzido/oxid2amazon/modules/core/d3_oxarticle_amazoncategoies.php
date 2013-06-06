@@ -2,28 +2,27 @@
 
 /**
  * D3 MG 2012-04-18
- * 
  * oxarticle =>d3oxid2amazon/core/d3_oxarticle_amazoncategoies
- *  
+
  */
 class d3_oxarticle_amazoncategoies extends d3_oxarticle_amazoncategoies_parent
 {
 
     /**
-     * Gibt die Kategorien 
-     * @return array 
+     * Gibt die Kategorien
+     *
+     * @return array
      */
     public function d3searchAmazonCategories4Article()
     {
         $aAmazonCats = array();
         /** @var az_amz_categories $oaz_amz_categories */
         $oaz_amz_categories = oxnew('az_amz_categories');
-        $aAmazonCats = $oaz_amz_categories->searchAmazonCategories4Article($this);
+        $aAmazonCats        = $oaz_amz_categories->searchAmazonCategories4Article($this);
         return $aAmazonCats;
     }
 
     /**
-     * 
      * @return array
      */
     public function d3GetSearchTermsForAmazon()
@@ -33,19 +32,18 @@ class d3_oxarticle_amazoncategoies extends d3_oxarticle_amazoncategoies_parent
     }
 
     /**
+     * @param string $sSearch
      *
-     * @param string $sSearch 
      * @return array
      */
     protected function _prepareSearchTermsForAmazon($sSearch)
     {
         $aSearchTerms = array();
-        for ($iCount = 1; $iCount <= 5; $iCount++)
-        {
+        for ($iCount = 1; $iCount <= 5; $iCount++) {
             $aResult = $this->_getPartOfSearchTermsText($sSearch);
             #dumpvar($aResult);
             $aSearchTerms[$iCount]['SearchTerm'] = $aResult['sPart'];
-            $sSearch = $aResult['sSearch'];
+            $sSearch                             = $aResult['sSearch'];
 
             $aResult = array();
         }
@@ -55,8 +53,10 @@ class d3_oxarticle_amazoncategoies extends d3_oxarticle_amazoncategoies_parent
 
     /**
      * Gibt Teiltext zurueeck
+     *
      * @param string $sSearch
-     * @return array 
+     *
+     * @return array
      */
     protected function _getPartOfSearchTermsText($sSearch)
     {
@@ -79,30 +79,34 @@ class d3_oxarticle_amazoncategoies extends d3_oxarticle_amazoncategoies_parent
     }
 
     /**
-     * trim 
+     * trim
+     *
      * @param string $sString
-     * @return string 
+     *
+     * @return string
      */
     protected function _d3Trim($sString)
     {
         return trim(rtrim($sString));
     }
 
-     /**
+    /**
      * Gibt die Bildpfade fuer die ZoomBilder zurueck
      * wrapper fuer getZoomPictureUrl
      * gibt "" zurueck wenn nopic.jpg enthalten ist
-     * 
+     *
      * @param integer $iIndex
-     * @return string 
+     *
+     * @return string
      */
     public function d3AmazonGetZoomPictureUrl($iIndex)
     {
         $sPic = $this->getZoomPictureUrl($iIndex);
 
         $iPos = strpos(strtolower($sPic), "nopic.jpg");
-        if ($iPos !== FALSE)
+        if($iPos !== FALSE) {
             $sPic = "";
+        }
 
         return $sPic;
     }
@@ -113,7 +117,7 @@ class d3_oxarticle_amazoncategoies extends d3_oxarticle_amazoncategoies_parent
     public function d3AmazonShrink()
     {
         $sText = $this->oxarticles__portaltext->rawValue;
-        
+
         #$sText = $this->shrink($sText, 2000, false);
         $sText = $this->shrink($sText, 1970, FALSE);
         #$sText = str_replace("\r\n", "<br>", $sText);
@@ -123,15 +127,16 @@ class d3_oxarticle_amazoncategoies extends d3_oxarticle_amazoncategoies_parent
 
     /**
      * Quelle dynexportbase.php
+     *
      * @param type $sInput
      * @param type $iMaxSize
      * @param type $blRemoveNewline
-     * @return string 
+     *
+     * @return string
      */
     public function shrink($sInput, $iMaxSize, $blRemoveNewline = TRUE)
     {
-        if ($blRemoveNewline)
-        {
+        if($blRemoveNewline) {
             $sInput = str_replace("\r\n", " ", $sInput);
             $sInput = str_replace("\n", " ", $sInput);
         }
@@ -142,8 +147,7 @@ class d3_oxarticle_amazoncategoies extends d3_oxarticle_amazoncategoies_parent
         #$sInput = $this->_unHTMLEntities(strip_tags($sInput));
 
         $oStr = getStr();
-        if ($oStr->strlen($sInput) > $iMaxSize - 3)
-        {
+        if($oStr->strlen($sInput) > $iMaxSize - 3) {
             $sInput = $oStr->substr($sInput, 0, $iMaxSize - 5) . "...";
         }
 
@@ -152,7 +156,6 @@ class d3_oxarticle_amazoncategoies extends d3_oxarticle_amazoncategoies_parent
 
     /**
      * Quelle dynexportbase.php
-     * 
      * Replace HTML Entities
      * Replacement for html_entity_decode which is only available from PHP 4.3.0 onj
      *
@@ -165,5 +168,5 @@ class d3_oxarticle_amazoncategoies extends d3_oxarticle_amazoncategoies_parent
         $aTransTbl = array_flip(get_html_translation_table(HTML_ENTITIES));
         return strtr($sInput, $aTransTbl);
     }
-    
+
 }

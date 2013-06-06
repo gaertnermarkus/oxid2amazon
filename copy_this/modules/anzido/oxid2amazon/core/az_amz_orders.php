@@ -243,56 +243,76 @@ class az_amz_orders extends oxSuperCfg
     {
         $aOrders = $this->_getOrders();
         foreach ($aOrders as $aOrder) {
-            echo "<br>\n Import Orders- NR:" . $aOrder['AMZORDERID'];
-            $oUser = $this->_getOrderUser($aOrder);
-            #$oAdress = $this->_getDelAdresse($aOrder);
+            if(!empty($aOrder)) {
+                $sUserId = $this->_d3getOrderUser($aOrder);
+                $oUser   = oxnew('oxuser');
+                $oUser->load($sUserId);
 
-            /* @var $oOrder oxorder */
-            $oOrder                                  = oxNew("oxorder");
-            $oOrder->oxorder__amzorderid->value      = $aOrder['AMZORDERID'];
-            $oOrder->oxorder__oxshopid->value        = $aOrder['OXSHOPID'];
-            $oOrder->oxorder__oxuserid->value        = $oUser->getId();
-            $oOrder->oxorder__oxbillemail->value     = $aOrder['BUYEREMAIL'];
-            $oOrder->oxorder__oxbilllname->value     = $aOrder['BUYERNAME'];
-            $oOrder->oxorder__oxbillstreet->value    = $aOrder['BUYERSTREET'];
-            $oOrder->oxorder__oxbillcity->value      = $aOrder['BUYERCITY'];
-            $oOrder->oxorder__oxbillzip->value       = $aOrder['BUYERZIP'];
-            $oOrder->oxorder__oxbillcountryid->value = $this->_getUserCountry($aOrder['BUYERCOUNTRYCODE']);
-            $oOrder->oxorder__oxbillfon->value       = $aOrder['BUYERPHONE'];
-            $oOrder->oxorder__oxdellname->value      = $aOrder['DELNAME'];
-            $oOrder->oxorder__oxdelcompany->value    = $aOrder['DELCOMPANY'];
-            $oOrder->oxorder__oxdelstreet->value     = $aOrder['DELSTREET'];
-            $oOrder->oxorder__oxdelcity->value       = $aOrder['DELCITY'];
-            $oOrder->oxorder__oxdelzip->value        = $aOrder['DELZIP'];
-            $oOrder->oxorder__oxdelcountryid->value  = $this->_getUserCountry($aOrder['DELCOUNTRYCODE']);
-            $oOrder->oxorder__oxdelfon->value        = $aOrder['DELPHONE'];
-            $oOrder->oxorder__oxfolder->value        = "ORDERFOLDER_NEW";
-            $oOrder->oxorder__oxdeltype->value       = $this->_getAmazonShipSet($aOrder['DELSERVICELEVEL']);
-            $oOrder->oxorder__oxpaymenttype->value   = $this->_getAmazonPayment();
-            $oOrder->oxorder__oxcurrency->value      = "EUR";
-            $oOrder->oxorder__oxcurrate->value       = 1;
-            $oOrder->oxorder__oxtransstatus->value   = "OK";
-            $oOrder->save();
+                $oAdress = $this->_d3getDelAdresse($aOrder);
 
-            $sOrderId = $oOrder->getId();
+                /* @var $oOrder oxorder */
+                $oOrder                       = oxNew("oxorder");
+                $oOrder->oxorder__amzorderid  = oxnew("oxField", $aOrder['AMZORDERID']);
+                $oOrder->oxorder__oxshopid    = oxnew("oxField", $aOrder['OXSHOPID']);
+                $oOrder->oxorder__oxuserid    = oxnew("oxField", $oUser->getId());
+                $oOrder->oxorder__oxbillemail = oxnew("oxField", $aOrder['BUYEREMAIL']);
+                $oOrder->oxorder__oxbilllname = oxnew("oxField", $oUser->getFieldData('OXLNAME'));
+                #$oOrder->oxorder__oxbilllname = oxnew("oxField", $oUser->oxuser__oxbilllname->rawValue);
+                $oOrder->oxorder__oxbillfname = oxnew("oxField", $oUser->getFieldData('OXFNAME'));
+                #$oOrder->oxorder__oxbillfname = oxnew("oxField", $oUser->oxuser__oxbillfname->rawValue);
+                $oOrder->oxorder__oxbillstreet    = oxnew("oxField", $aOrder['BUYERSTREET']);
+                $oOrder->oxorder__oxbillcity      = oxnew("oxField", $aOrder['BUYERCITY']);
+                $oOrder->oxorder__oxbillzip       = oxnew("oxField", $aOrder['BUYERZIP']);
+                $oOrder->oxorder__oxbillcountryid = oxnew(
+                    "oxField",
+                    $this->_getUserCountry($aOrder['BUYERCOUNTRYCODE'])
+                );
+                $oOrder->oxorder__oxbillfon       = oxnew("oxField", $aOrder['BUYERPHONE']);
+                #$oOrder->oxorder__oxdelfname = oxnew("oxField", $oUser->getFieldData('OXDELFNAME'));
+                $oOrder->oxorder__oxdelfname = oxnew("oxField", $oAdress->oxaddress__oxfname->rawValue);
+                #$oOrder->oxorder__oxdellname = oxnew("oxField", $oUser->getFieldData('OXDELLNAME'));
+                $oOrder->oxorder__oxdellname     = oxnew("oxField", $oAdress->oxaddress__oxfname->rawValue);
+                $oOrder->oxorder__oxdelcompany   = oxnew("oxField", $aOrder['DELCOMPANY']);
+                $oOrder->oxorder__oxdelstreet    = oxnew("oxField", $aOrder['DELSTREET']);
+                $oOrder->oxorder__oxdelcity      = oxnew("oxField", $aOrder['DELCITY']);
+                $oOrder->oxorder__oxdelzip       = oxnew("oxField", $aOrder['DELZIP']);
+                $oOrder->oxorder__oxdelcountryid = oxnew("oxField", $this->_getUserCountry($aOrder['DELCOUNTRYCODE']));
+                $oOrder->oxorder__oxdelfon       = oxnew("oxField", $aOrder['DELPHONE']);
+                $oOrder->oxorder__oxfolder       = oxnew("oxField", "ORDERFOLDER_NEW");
+                $oOrder->oxorder__oxdeltype      = oxnew(
+                    "oxField",
+                    $this->_getAmazonShipSet($aOrder['DELSERVICELEVEL'])
+                );
+                $oOrder->oxorder__oxpaymenttype  = oxnew("oxField", $this->_getAmazonPayment());
+                $oOrder->oxorder__oxcurrency     = oxnew("oxField", "EUR");
+                $oOrder->oxorder__oxcurrate      = oxnew("oxField", 1);
+                $oOrder->oxorder__oxtransstatus  = oxnew("oxField", "OK");
 
-            $dArticleSum = $this->_saveOrderArticles($aOrder['AMZORDERID'], $sOrderId);
+                //Nr ebenfalls in OXTRANSID abspeichern
+                $oOrder->oxorder__oxtransid = oxnew("oxField", $aOrder['AMZORDERID']);
+                $oOrder->save();
+                $sOrderId    = $oOrder->getId();
+                $dArticleSum = $this->_saveOrderArticles($aOrder['AMZORDERID'], $sOrderId);
 
-            // if there are any errors on inserting order articles $this->_blOrderDelete will be set to true
-            // this means: delete order and return immediately, do not set order sum - cause order is saved again there
-            // DOC: such deleted orders stay in tmp tables with azprocessed flag = 0. they could be imported later.
-            // TODO: clean up tmp tables
-            if($this->_blOrderDelete) {
-                $this->_deleteOrder($sOrderId);
-                return;
+                // if there are any errors on inserting order articles $this->_blOrderDelete will be set to true
+                // this means: delete order and return immediately, do not set order sum - cause order is saved again there
+                // DOC: such deleted orders stay in tmp tables with azprocessed flag = 0. they could be imported later.
+                // TODO: clean up tmp tables
+
+                if($this->_blOrderDelete) {
+                    $this->_deleteOrder($sOrderId);
+                    return;
+                }
+                $this->_setOrderSum($oOrder, $dArticleSum);
+
+                $this->_setOrderDone($aOrder['AMZORDERID']);
+
+                $this->_D3setOrderDate($oOrder, $aOrder['AMZORDERDATE']);
+
+                //E-Mail - Kunde + Admin
+                $this->_SendOrderByEmail($oOrder->getId());
             }
-            $this->_setOrderSum($oOrder, $dArticleSum);
-
-            $this->_setOrderDone($aOrder['AMZORDERID']);
-
-            $this->_setOrderDate($oOrder, $aOrder['AMZORDERDATE']);
         }
-        echo "<br>\n ORDERS - importOrders - END";
     }
 
     /**
@@ -383,6 +403,7 @@ class az_amz_orders extends oxSuperCfg
      */
     protected function _saveOrderArticles($sAmzOrderId, $sOrderId)
     {
+
         $dArticleSum          = 0;
         $this->_dShippingcost = 0;
         $aVatPercent          = array();
@@ -437,6 +458,9 @@ class az_amz_orders extends oxSuperCfg
             $oOrderArticle->oxorderarticles__oxnprice->value = $aNetValues['dNetPrice'] / $aOrderItem['AMZQUANTITY'];
             /** Add D3 MG/TD  * */
             $oOrderArticle->save();
+
+            /* ADD D3 MG 2012-05-03 - Daten manuell an Artikel speichern */
+            $this->_addParams2OrderArticle($oOrderArticle->getId(), $oArticle);
 
             // TODO for EE 2.7: write alternative function for updateArticleStock
             $oOrderArticle->updateArticleStock(
@@ -668,6 +692,250 @@ class az_amz_orders extends oxSuperCfg
                     echo "<br>\nKonnte Datei nicht loeschen:" . $aOrder['AMZFILENAME'];
                 }
             }
+        }
+    }
+
+    /**
+     * Set OrderDate manuel,
+     *
+     * @param object $oOrder
+     * @param object $sDate
+     */
+    protected function _D3setOrderDate($oOrder, $sDate)
+    {
+
+        #$oOrder->oxorder__oxorderdate->value = $sDate;
+
+        $oUtilsDate = oxUtilsDate::getInstance();
+        $sDate      = date('Y-m-d H:i:s', $oUtilsDate->getTime());
+        $sId        = $oOrder->getId();
+        $oDb        = oxDb::getDb();
+        $sUpdate    = "UPDATE oxorder SET oxorderdate=" . $oDb->quote($sDate) . " WHERE oxid=" . $oDb->quote($sId);
+        #echo "<br>" . $sUpdate;
+
+        $oDb->execute($sUpdate);
+    }
+
+    protected function _d3getOrderUser($aAmzOrder)
+    {
+        $sId     = '';
+        $sUserId = oxDb::getDb()->getOne(
+            "select oxid from oxuser where oxusername = '" . $aAmzOrder['BUYEREMAIL'] . "'"
+        );
+        if(empty($sUserId)) {
+
+            $aName   = $this->_separateAmazonName($aAmzOrder['BUYERNAME']);
+            $aStreet = $this->_separateAmazonStreet($aAmzOrder['BUYERSTREET']);
+
+            /* @var $oUser oxuser */
+            $oUser                             = oxNew("oxuser");
+            $oUser->oxuser__oxactive->value    = '1';
+            $oUser->oxuser__oxusername->value  = $aAmzOrder['BUYEREMAIL'];
+            $oUser->oxuser__oxlname->value     = $aName['lname'];
+            $oUser->oxuser__oxfname->value     = $aName['fname'];
+            $oUser->oxuser__oxfon->value       = $aAmzOrder['BUYERPHONE'];
+            $oUser->oxuser__oxstreet->value    = $aStreet['street'];
+            $oUser->oxuser__oxstreetnr->value  = $aStreet['streetnr'];
+            $oUser->oxuser__oxcity->value      = $aAmzOrder['BUYERCITY'];
+            $oUser->oxuser__oxzip->value       = $aAmzOrder['BUYERZIP'];
+            $oUser->oxuser__oxcountryid->value = $this->_getUserCountry($aAmzOrder['BUYERCOUNTRYCODE']);
+            $oUser->save();
+            $sId = $oUser->getId();
+        }
+        else {
+            #$oUser = oxNew("oxuser");
+            #$oUser->load($sUserId);
+            $sId = $sUserId;
+        }
+
+        return $sId;
+    }
+
+    /**
+     * @param array $aAmzOrder
+     *
+     * @return object oxaddress
+     */
+    protected function _d3getDelAdresse($aAmzOrder)
+    {
+        $sUserId = oxDb::getDb()->getOne(
+            "select oxid from oxuser where oxusername = '" . $aAmzOrder['BUYEREMAIL'] . "'"
+        );
+
+        /* @var $oAddress oxaddress */
+        $oAddress    = oxNew("oxaddress");
+        $sAdressOxid = $this->_GetAdressOxid($sUserId);
+
+        if(!$oAddress->load($sAdressOxid)) {
+            $aName   = $this->_separateAmazonName($aAmzOrder['DELNAME']);
+            $aStreet = $this->_separateAmazonStreet($aAmzOrder['DELSTREET']);
+
+            $oAddress->oxaddress__oxfname     = oxnew('oxfield', $aName['fname']);
+            $oAddress->oxaddress__oxlname     = oxnew('oxfield', $aName['lname']);
+            $oAddress->oxaddress__oxsal       = oxnew('oxfield', '');
+            $oAddress->oxaddress__oxfon       = oxnew('oxfield', $aAmzOrder['DELPHONE']);
+            $oAddress->oxaddress__oxcompany   = oxnew('oxfield', $aAmzOrder['DELCOMPANY']);
+            $oAddress->oxaddress__oxstreet    = oxnew('oxfield', $aStreet['street']);
+            $oAddress->oxaddress__oxstreetnr  = oxnew('oxfield', $aStreet['streetnr']);
+            $oAddress->oxaddress__oxcity      = oxnew('oxfield', $aAmzOrder['DELCITY']);
+            $oAddress->oxaddress__oxzip       = oxnew('oxfield', $aAmzOrder['DELZIP']);
+            $oAddress->oxaddress__oxaddinfo   = oxnew('oxfield', '');
+            $oAddress->oxaddress__oxstateid   = oxnew('oxfield', '');
+            $oAddress->oxaddress__oxcountryid = oxnew('oxfield', $this->_getUserCountry($aAmzOrder['DELCOUNTRYCODE']));
+            $oAddress->save();
+        }
+        else {
+            $oAddress->load($sAdressOxid);
+        }
+        return $oAddress;
+    }
+
+    /**
+     * Add some paramter to orderarticle
+     * oxinsert, oxthumb, oxpic1-3
+     * oxsubclass
+     * oxodershopid
+     *
+     * @param string $sOxid
+     * @param object $oArticle
+     */
+    protected function _addParams2OrderArticle($sOxid, $oArticle)
+    {
+        $oDb     = oxDb::getDb();
+        $sUpdate = "UPDATE oxorderarticles SET
+            oxsubclass = 'oxarticle',
+            oxordershopid = 'oxbaseshop',
+            oxinsert = " . $oDb->quote(date('Y-m-d')) . ",
+            oxthumb = " . $oDb->quote($oArticle->oxarticles__oxthumb->value) . ",
+            oxpic1 = " . $oDb->quote($oArticle->oxarticles__oxpic1->value) . ",
+            oxpic2 = " . $oDb->quote($oArticle->oxarticles__oxpic2->value) . ",
+            oxpic3 = " . $oDb->quote($oArticle->oxarticles__oxpic3->value) . "
+
+            WHERE oxid=" . $oDb->quote($sOxid);
+        #echo "<br>" . $sUpdate;
+
+        $oDb->execute($sUpdate);
+
+        /*
+          $oOrderArticle = oxNew("oxorderarticle");
+          $oOrderArticle->load($sOxid);
+          $oOrderArticle->oxorderarticles__oxsubclass = "oxarticle";
+          $oOrderArticle->oxorderarticles__oxordershopid = "oxbaseshop";
+          $oOrderArticle->oxorderarticles__oxinsert = date('Y-m-d');
+
+          $oOrderArticle->oxorderarticles__oxthumb = $oArticle->oxarticles__oxthumb->value;
+          $oOrderArticle->oxorderarticles__oxpic1 = $oArticle->oxarticles__oxpic1->value;
+          $oOrderArticle->oxorderarticles__oxpic2 = $oArticle->oxarticles__oxpic2->value;
+          $oOrderArticle->oxorderarticles__oxpic3 = $oArticle->oxarticles__oxpic3->value;
+          $oOrderArticle->save();
+
+         */
+    }
+
+    /**
+     * separete Name from Amazon
+     *
+     * @param string $sName
+     *
+     * @return array
+     */
+    protected function _separateAmazonName($sName)
+    {
+        $aName = array();
+
+        $sString = trim($sName);
+        $iLength = strlen($sString);
+
+        $iPos = strrpos($sString, " ");
+
+        if($iPos) {
+            $aName['fname'] = substr($sString, 0, $iPos);
+            $aName['lname'] = substr($sString, ($iLength - $iPos - 1) * -1);
+        }
+
+        return $aName;
+    }
+
+    /**
+     * separate Adress from Amazon
+     *
+     * @param string $sStreet
+     *
+     * @return array
+     */
+    protected function _separateAmazonStreet($sStreet)
+    {
+        $sString = trim($sStreet);
+        $iLength = strlen($sString);
+
+        $iPos  = strrpos($sString, " ");
+        $iPos2 = strrpos($sString, ".");
+
+        $aStreet = array();
+
+        if($iPos) {
+            $aStreet['street']   = substr($sString, 0, $iPos);
+            $aStreet['streetnr'] = substr($sString, ($iLength - $iPos - 1) * -1);
+        }
+        elseif($iPos2) {
+            $aStreet['street']   = substr($sString, 0, $iPos2);
+            $aStreet['streetnr'] = substr($sString, ($iLength - $iPos2 - 1) * -1);
+        }
+        else {
+            $aStreet['street']   = $sString;
+            $aStreet['streetnr'] = "";
+        }
+
+        return $aStreet;
+    }
+
+    /**
+     * Send E-Mail to Owner and Customer
+     * Set LangId
+     *
+     * @param string $sOxid
+     *
+     * @return bool
+     */
+    protected function _SendOrderByEmail($sOxid)
+    {
+        $blOrderSend = FALSE;
+        /* @var $oOrder oxorder */
+        $oOrder      = oxnew('oxorder');
+        $blOrderLoad = $oOrder->load($sOxid);
+
+        if(!$blOrderLoad) {
+            return $blOrderSend;
+        }
+
+        $oBasket = $oOrder->d3getOrderBasket();
+        $oOrder->d3addOrderArticlesToBasket($oBasket, $oOrder->getOrderArticles(TRUE));
+        $oBasket->d3calculateBasket4Amazon();
+        #$oBasket->calculateBasket();
+
+        $oUser        = $oOrder->getOrderUser();
+        $oUserPayment = $oOrder->d3setPayment4Amazon($oBasket->getPaymentId());
+
+        //LangId für Email
+        $oLanguages = oxLang::getInstance();
+        $iBaseLang  = $oLanguages->getBaseLanguage();
+        $iLang      = $oOrder->getFieldData('oxlang');
+        $oLanguages->setBaseLanguage($iLang);
+
+        $blOrderSend = $oOrder->d3sendOrderByEmail($oUser, $oBasket, $oUserPayment);
+        //Restore Language
+        $oLanguages->setBaseLanguage($iBaseLang);
+
+        return $blOrderSend;
+    }
+
+    public function readFiles()
+    {
+        $this->_readSourceDir();
+        foreach ($this->_aReportFileNames as $sFileName) {
+            $this->setCurrentFileName($sFileName);
+            $this->_parseFileContent();
+            $this->_moveOrderReport($sFileName);
         }
     }
 

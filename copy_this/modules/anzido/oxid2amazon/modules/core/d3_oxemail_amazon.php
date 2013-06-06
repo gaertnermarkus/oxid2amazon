@@ -2,9 +2,6 @@
 
 /**
  * D3 MG 2012-06-11
- * - Emails an Shopadmin senden, Alternative da Sprachbausteine nicht uebersetzt wurden
- * - kleine Extraanpassung in E-Mails: kein Bewertungslink
- * bitte den Link zur Bewertung rausnehmen. Die Angabe zur Versandart auch.
  * oxemail =>d3oxid2amazon/core/d3_oxemail_amazon
  */
 class d3_oxemail_amazon extends d3_oxemail_amazon_parent
