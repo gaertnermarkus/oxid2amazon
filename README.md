@@ -26,7 +26,3 @@ Im Bereich "Amazon control" haben Sie die Möglichkeit, sämtliche von Ihnen bis
 Im Bereich Cronjobs haben Sie die Möglichkeit, die einzelnen Aktionen des Amazon-Moduls manuell auszulösen. Im Normalfall sollten für diese Aktionen Cronjobs angelegt werden.
 Nachdem Sie einen Amazon-Account angelegt haben, können Sie unter dem Reiter Product selector bestimmen, welche Artikel zu Amazon exportiert werden sollen. Sie können dies einerseits auf Basis der Auswahl einer oder mehrerer Kategorien tun und/oder auf Basis von Filterkriterien, die Sie völlig Frei anhand von Feldern der Artikeltabelle festlegen können. Über den Button Beispiel-Produkte können Sie eine Auswahl der Artikel sehen, die auf Basis der von Ihnen eingestellten Kriterien exportiert würde.
 Im Menü Settings können und müssen Sie noch einige weitere Einstellungen für Ihren Export vornehmen .... 
-
-##TODO
-Leeren Sie ggf. sicherheitshalber das tmp Verzeichnis Ihres Shops.
-History ... 
